@@ -1,0 +1,15 @@
+[project]
+name = "2-events-aggregator"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "apscheduler>=3.11.3",
+    "fastapi>=0.139.0",
+    "httpx>=0.28.1",
+    "psycopg2-binary>=2.9.12",
+    "python-dotenv>=1.2.2",
+    "ruff>=0.15.21",
+    "sqlalchemy>=2.0.51",
+    "uvicorn>=0.51.0",
+]
