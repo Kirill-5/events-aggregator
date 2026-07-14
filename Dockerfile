@@ -6,6 +6,6 @@ COPY pyproject.toml uv.lock ./
 
 RUN pip install uv && uv sync
 
-COPY app/api/routes .
+COPY . .
 
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
