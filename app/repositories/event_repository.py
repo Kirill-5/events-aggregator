@@ -20,3 +20,30 @@ class EventRepository:
 
         query = query.offset(skip).limit(limit)
         return query.all()
+
+
+    def upsert(self, event_data: dict) -> Event:
+        event = self.session.query(Event).filter(Event.id == event_data['id']).first()
+
+        if event:
+            event.name = event_data.get('name', event.name)
+            event.place_id = event_data.get('place_id', event.place_id)
+            event.event_time = event_data.get('event_time', event.event_time)
+            event.registration_deadline = event_data.get('registration_deadline', event.registration_deadline)
+            event.status = event_data.get('status', event.status)
+            event.number_of_visitors = event_data.get('number_of_visitors', event.number_of_visitors)
+
+        else:
+            event = Event(
+                id=event_data['id'],
+                name=event_data['name'],
+                place_id=event_data['place_id'],
+                event_time=event_data['event_time'],
+                registration_deadline=event_data['registration_deadline'],
+                status=event_data['status'],
+                number_of_visitors=event_data['number_of_visitors'],
+                )
+            self.session.add(event)
+
+        self.session.commit()
+        return event
