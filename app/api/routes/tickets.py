@@ -48,3 +48,20 @@ async def create_ticket(
     )
 
     return {"ticket_id": ticket_id}
+
+
+@router.delete("/{ticket_id}")
+async def delete_ticket(
+        ticket_id: str,
+        db: Session = Depends(get_db)
+):
+    ticket_repo = TicketRepository(db)
+    ticket = ticket_repo.get(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    client = EventsProviderClient(
+        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
+    ticket_cancel = await client.cancel(ticket_id)
+    ticket_repo.delete(ticket_id)
+    return {"success": True}
