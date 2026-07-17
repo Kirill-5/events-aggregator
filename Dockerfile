@@ -8,6 +8,6 @@ RUN pip install uv && uv sync
 
 COPY . .
 
-RUN alembic upgrade head
+RUN uv run alembic upgrade head
 
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
