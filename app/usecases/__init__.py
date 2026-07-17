@@ -1,1 +1,1 @@
-from app.usecases.sync_events import SyncEventsUsecase
+from app.usecases.SyncEventsUsecase import SyncEventsUsecase

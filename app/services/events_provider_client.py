@@ -8,13 +8,14 @@ class EventsProviderClient:
         self.base_url = base_url
         self.client = httpx.Client(timeout=30.0)
 
-
-    async def events(self, cursor: Optional[str] = None) -> Dict[str, Any]:
+    async def events(self, cursor: Optional[str] = None, changed_at: Optional[str] = None) -> Dict[str, Any]:
         url = f"{self.base_url}/api/events"
         params = {}
         if cursor:
             params["cursor"] = cursor
-        response = await client.get(url, params=params)
+        if changed_at:
+            params["changed_at"] = changed_at
+        response = await self.client.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
