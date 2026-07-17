@@ -6,9 +6,9 @@ from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.schemas.ticket import TicketCreate, TicketResponse
 
-router = APIRouter(prefix="/api/events", tags=["events"])
+router = APIRouter(tags=["tickets"])
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/api/tickets")
 async def create_ticket(
         ticket: TicketCreate,
         db: Session = Depends(get_db)
@@ -48,7 +48,7 @@ async def create_ticket(
 
     return {"ticket_id": ticket_id}
 
-@router.delete("/{ticket_id}")
+@router.delete("/api/tickets/{ticket_id}")
 async def delete_ticket(
         ticket_id: str,
         db: Session = Depends(get_db)

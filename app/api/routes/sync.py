@@ -8,9 +8,9 @@ from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.usecases.SyncEventsUsecase import SyncEventsUsecase
 
-router = APIRouter(prefix="/api/sync", tags=["sync"])
+router = APIRouter(tags=["sync"])
 
-@router.post("/trigger")
+@router.post("/api/sync/trigger")
 async def trigger_sync(db: Session = Depends(get_db)):
     try:
         client = EventsProviderClient(

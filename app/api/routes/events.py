@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
 import time
@@ -8,12 +8,10 @@ from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.models.event import Event
 
-
+router = APIRouter(tags=["events"])
 seats_cache = {}
 
-router = APIRouter(prefix="/api/events", tags=["events"])
-
-@router.get("/")
+@router.get("/api/events")
 async def get_events(
     date_from: Optional[str] = None,
     page: int = 1,
@@ -32,8 +30,7 @@ async def get_events(
         "results": events
     }
 
-
-@router.get("/{event_id}")
+@router.get("/api/events/{event_id}")
 async def get_event(event_id: str, db: Session = Depends(get_db)):
     event = EventRepository(db).get(event_id)
     if not event:
@@ -58,8 +55,7 @@ async def get_event(event_id: str, db: Session = Depends(get_db)):
         "number_of_visitors": event.number_of_visitors,
     }
 
-
-@router.get("/{event_id}/seats")
+@router.get("/api/events/{event_id}/seats")
 async def get_seats(event_id: str, db: Session = Depends(get_db)):
     event = EventRepository(db).get(event_id)
     if not event:
