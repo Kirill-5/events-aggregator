@@ -6,10 +6,7 @@ from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.schemas.ticket import TicketCreate, TicketResponse
 
-
-
 router = APIRouter(prefix="/api/events", tags=["events"])
-
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_ticket(
@@ -24,23 +21,25 @@ async def create_ticket(
         raise HTTPException(status_code=400, detail="Event is not published")
 
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
+        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
+        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+    )
     client_reg = await client.register(
         event_id=ticket.event_id,
         first_name=ticket.first_name,
         last_name=ticket.last_name,
         email=ticket.email,
         seat=ticket.seat
-
     )
 
     ticket_id = client_reg.get("ticket_id")
     if not ticket_id:
-        raise HTTPException(status_code=500, detail="Ticket not found")
+        raise HTTPException(status_code=500, detail="Failed to get ticket_id from provider")
 
     ticket_repo = TicketRepository(db)
-    registration = ticket_repo.create(
+    ticket_repo.create(
         event_id=ticket.event_id,
+        ticket_id=ticket_id,
         first_name=ticket.first_name,
         last_name=ticket.last_name,
         email=ticket.email,
@@ -48,7 +47,6 @@ async def create_ticket(
     )
 
     return {"ticket_id": ticket_id}
-
 
 @router.delete("/{ticket_id}")
 async def delete_ticket(
@@ -61,7 +59,9 @@ async def delete_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
 
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
-    ticket_cancel = await client.cancel(ticket_id)
+        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
+        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+    )
+    await client.cancel(ticket_id)
     ticket_repo.delete(ticket_id)
     return {"success": True}

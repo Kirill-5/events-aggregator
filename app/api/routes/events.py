@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
-
-from app import db
+import time
 from app.db.database import get_db
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
+from app.services.events_provider_client import EventsProviderClient
 from app.models.event import Event
 
 
@@ -65,7 +65,6 @@ async def get_seats(event_id: str, db: Session = Depends(get_db)):
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-
     if event_id in seats_cache:
         cached_data, cache_time = seats_cache[event_id]
         if time.time() - cache_time < 30:
@@ -74,9 +73,10 @@ async def get_seats(event_id: str, db: Session = Depends(get_db)):
                 "available_seats": cached_data
             }
 
-
     client = EventsProviderClient(
-            base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
+        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
+        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+    )
     seats_data = await client.seats(event.id)
     available_seats = seats_data.get("available_seats", [])
     seats_cache[event_id] = (available_seats, time.time())

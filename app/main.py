@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.core.scheduler import start_scheduler
-from app.api.routes import health, events, tickets, sync
+from app.api.routes import health_router, events_router, tickets_router, sync_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -10,7 +10,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(health.router)
-app.include_router(events.router)
-app.include_router(tickets.router)
-app.include_router(sync.router)
+app.include_router(health_router)
+app.include_router(events_router)
+app.include_router(tickets_router)
+app.include_router(sync_router)
