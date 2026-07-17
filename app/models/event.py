@@ -3,6 +3,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from app.models.place import Place
 import uuid
+from sqlalchemy.orm import relationship
+
 
 class Event(Base):
     __tablename__ = "event"
@@ -13,3 +15,5 @@ class Event(Base):
     registration_deadline = Column(DateTime, nullable=True)
     status = Column(String)
     number_of_visitors = Column(Integer)
+
+    place = relationship("Place")
