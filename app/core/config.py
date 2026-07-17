@@ -3,4 +3,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/events_db")
+DB_HOST = os.getenv("POSTGRES_HOST")
+DB_PORT = os.getenv("POSTGRES_PORT")
+DB_USER = os.getenv("POSTGRES_USERNAME")
+DB_PASS = os.getenv("POSTGRES_PASSWORD")
+DB_NAME = os.getenv("POSTGRES_DATABASE_NAME")
+
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
