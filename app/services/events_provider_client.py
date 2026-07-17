@@ -4,9 +4,10 @@ import httpx
 from typing import Optional, List, Dict, Any
 
 class EventsProviderClient:
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, api_key: str):
         self.base_url = base_url
-        self.client = httpx.Client(timeout=30.0)
+        self.api_key = api_key
+        self.client = httpx.AsyncClient(timeout=30.0)
 
     async def events(self, cursor: Optional[str] = None, changed_at: Optional[str] = None) -> Dict[str, Any]:
         url = f"{self.base_url}/api/events"
@@ -15,7 +16,8 @@ class EventsProviderClient:
             params["cursor"] = cursor
         if changed_at:
             params["changed_at"] = changed_at
-        response = await self.client.get(url, params=params)
+        headers = {"x-api-key": self.api_key}  # добавить
+        response = await self.client.get(url, params=params, headers=headers)  # добавить headers
         response.raise_for_status()
         return response.json()
 

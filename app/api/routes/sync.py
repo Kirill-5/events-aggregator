@@ -12,9 +12,10 @@ router = APIRouter(prefix="/api/sync", tags=["sync"])
 
 @router.post("/trigger")
 async def trigger_sync(db: Session = Depends(get_db)):
-
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
+        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
+        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"  # добавить
+    )
     event_repo = EventRepository(db)
     place_repo = PlaceRepository(db)
     usecase = SyncEventsUsecase(client, event_repo, place_repo)
