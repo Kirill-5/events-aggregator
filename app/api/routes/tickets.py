@@ -62,6 +62,6 @@ async def delete_ticket(
         base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
         api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
     )
-    await client.cancel(ticket_id)
+    await client.cancel(ticket.event_id, ticket_id)
     ticket_repo.delete(ticket_id)
     return {"success": True}

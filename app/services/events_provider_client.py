@@ -36,12 +36,11 @@ class EventsProviderClient:
         return data
 
     async def register(self, event_id: str, first_name: str, last_name: str, email: str, seat: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/tickets/"
+        url = f"{self.base_url}/api/events/{event_id}/register/"
         headers = {"x-api-key": self.api_key}
         response = await self.client.post(
             url,
             json={
-                "event_id": event_id,
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email,
@@ -52,9 +51,13 @@ class EventsProviderClient:
         response.raise_for_status()
         return response.json()
 
-    async def cancel(self, ticket_id: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/tickets/{ticket_id}/"
+    async def cancel(self, event_id: str, ticket_id: str) -> Dict[str, Any]:
+        url = f"{self.base_url}/api/events/{event_id}/unregister/"
         headers = {"x-api-key": self.api_key}
-        response = await self.client.delete(url, headers=headers)
+        response = await self.client.delete(
+            url,
+            json={"ticket_id": ticket_id},
+            headers=headers
+        )
         response.raise_for_status()
         return response.json()
