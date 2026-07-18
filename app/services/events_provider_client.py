@@ -57,7 +57,7 @@ class EventsProviderClient:
         headers = {"x-api-key": self.api_key, "Content-Type": "application/json"}
         response = await self.client.delete(
             url,
-            data=json.dumps({"ticket_id": ticket_id}),
+            content=json.dumps({"ticket_id": ticket_id}),
             headers=headers
         )
         response.raise_for_status()
