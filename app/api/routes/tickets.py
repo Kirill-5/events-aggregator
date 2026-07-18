@@ -5,6 +5,7 @@ from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.schemas.ticket import TicketCreate, TicketResponse
+from uuid import UUID
 
 router = APIRouter(tags=["tickets"])
 
@@ -13,6 +14,12 @@ async def create_ticket(
         ticket: TicketCreate,
         db: Session = Depends(get_db)
 ):
+
+    try:
+        UUID(ticket.event_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid event_id format")
+
     event = EventRepository(db).get(ticket.event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
