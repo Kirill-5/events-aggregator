@@ -7,8 +7,8 @@ class TicketRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def get(self, ticket_id: int) -> Optional[Registration]:
-        return self.session.query(Registration).filter(Registration.id == ticket_id).first()
+    def get(self, ticket_id: str) -> Optional[Registration]:
+        return self.session.query(Registration).filter(Registration.ticket_id == ticket_id).first()
 
     def create(self, event_id: str, ticket_id: str, first_name: str, last_name: str, email: str, seat:str) -> Registration:
         registration = Registration(
