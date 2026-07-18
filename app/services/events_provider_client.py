@@ -1,5 +1,6 @@
 import httpx
 from typing import Optional, Dict, Any
+import json
 
 class EventsProviderClient:
     def __init__(self, base_url: str, api_key: str):
@@ -53,10 +54,10 @@ class EventsProviderClient:
 
     async def cancel(self, event_id: str, ticket_id: str) -> Dict[str, Any]:
         url = f"{self.base_url}/api/events/{event_id}/unregister/"
-        headers = {"x-api-key": self.api_key}
+        headers = {"x-api-key": self.api_key, "Content-Type": "application/json"}
         response = await self.client.delete(
             url,
-            json={"ticket_id": ticket_id},
+            data=json.dumps({"ticket_id": ticket_id}),
             headers=headers
         )
         response.raise_for_status()
