@@ -55,9 +55,10 @@ class EventsProviderClient:
     async def cancel(self, event_id: str, ticket_id: str) -> Dict[str, Any]:
         url = f"{self.base_url}/api/events/{event_id}/unregister/"
         headers = {"x-api-key": self.api_key, "Content-Type": "application/json"}
-        response = await self.client.delete(
-            url,
-            content=json.dumps({"ticket_id": ticket_id}),
+        response = await self.client.request(
+            method="DELETE",
+            url=url,
+            json={"ticket_id": ticket_id},
             headers=headers
         )
         response.raise_for_status()
