@@ -11,22 +11,31 @@ from app.models.event import Event
 router = APIRouter(tags=["events"])
 seats_cache = {}
 
+
 @router.get("/api/events")
 async def get_events(
-    date_from: Optional[str] = None,
-    page: int = 1,
-    page_size: int = 20,
-    db: Session = Depends(get_db)
+        date_from: Optional[str] = None,
+        page: int = 1,
+        page_size: int = 20,
+        db: Session = Depends(get_db)
 ):
     skip = (page - 1) * page_size
     event_repo = EventRepository(db)
     events = event_repo.list(date_from, skip, page_size)
     total_count = db.query(Event).count()
 
+
+    next_page = page + 1 if skip + page_size < total_count else None
+    previous_page = page - 1 if page > 1 else None
+
+    base_url = "/api/events"
+    next_url = f"{base_url}?page={next_page}&page_size={page_size}" if next_page else None
+    previous_url = f"{base_url}?page={previous_page}&page_size={page_size}" if previous_page else None
+
     return {
         "count": total_count,
-        "page": page,
-        "page_size": page_size,
+        "next": next_url,
+        "previous": previous_url,
         "results": events
     }
 

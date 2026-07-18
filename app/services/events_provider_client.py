@@ -1,11 +1,9 @@
-from http import client
-
 import httpx
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 class EventsProviderClient:
     def __init__(self, base_url: str, api_key: str):
-        self.base_url = base_url
+        self.base_url = base_url.rstrip('/')
         self.api_key = api_key
         self.client = httpx.AsyncClient(timeout=30.0)
 
@@ -33,7 +31,9 @@ class EventsProviderClient:
         headers = {"x-api-key": self.api_key}
         response = await self.client.get(url, headers=headers)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        print(f"Seats response for event {event_id}: {data}")  # Добавить
+        return data
 
     async def register(self, event_id: str, first_name: str, last_name: str, email: str, seat: str) -> Dict[str, Any]:
         url = f"{self.base_url}/api/tickets/"
