@@ -8,7 +8,7 @@ from app.schemas.ticket import TicketCreate, TicketResponse
 
 router = APIRouter(tags=["tickets"])
 
-@router.post("/api/tickets")
+@router.post("/api/tickets", status_code=status.HTTP_201_CREATED)
 async def create_ticket(
         ticket: TicketCreate,
         db: Session = Depends(get_db)
