@@ -83,7 +83,7 @@ async def get_seats(event_id: str, db: Session = Depends(get_db)):
         api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
     )
     seats_data = await client.seats(event.id)
-    available_seats = seats_data.get("available_seats", [])
+    available_seats = seats_data.get("seats", [])
     seats_cache[event_id] = (available_seats, time.time())
 
     return {
