@@ -1,9 +1,11 @@
-from app.db.database import Base
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from app.models.place import Place
 import uuid
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Enum as SQLEnum
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
+from app.db.database import Base
+from app.models.event_status import EventStatus
 
 
 class Event(Base):
@@ -13,7 +15,7 @@ class Event(Base):
     place_id = Column(UUID(as_uuid=True), ForeignKey("place.id"))
     event_time = Column(DateTime)
     registration_deadline = Column(DateTime, nullable=True)
-    status = Column(String)
+    status = Column(SQLEnum(EventStatus), default=EventStatus.DRAFT)
     number_of_visitors = Column(Integer)
 
     place = relationship("Place")
