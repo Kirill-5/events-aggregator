@@ -1,5 +1,5 @@
 from app.db.database import Base
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 
 
 class SyncMetadata(Base):

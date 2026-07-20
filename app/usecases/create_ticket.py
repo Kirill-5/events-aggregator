@@ -2,7 +2,6 @@ from app.models.event_status import EventStatus
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
-from app.models.event_status import EventStatus
 
 
 class CreateTicketUsecase:

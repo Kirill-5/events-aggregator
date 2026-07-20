@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, patch
 from app.services.events_provider_client import EventsProviderClient
 
 

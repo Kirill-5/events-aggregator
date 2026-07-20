@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_events_provider_client
-from app.core.config import EVENTS_PROVIDER_API_KEY, EVENTS_PROVIDER_URL
 from app.db.database import get_db
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
-from app.schemas.ticket import TicketCreate, TicketResponse
+from app.schemas.ticket import TicketCreate
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.create_ticket import CreateTicketUsecase
 

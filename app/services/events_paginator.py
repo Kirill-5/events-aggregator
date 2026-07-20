@@ -1,5 +1,3 @@
-from typing import Optional
-from app.services.events_provider_client import EventsProviderClient
 
 class EventsPaginator:
     def __init__(self, client, changed_at: str = "2000-01-01"):

@@ -1,7 +1,6 @@
 from app.db.database import Base
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from app.models.event import Event
+from sqlalchemy import Column, String, ForeignKey
 import uuid
 
 class Registration(Base):

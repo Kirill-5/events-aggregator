@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.sync_metadata import SyncMetadata
-from typing import Optional
 
 class SyncMetadataRepository:
     def __init__(self, session: Session):

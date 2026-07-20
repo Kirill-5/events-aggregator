@@ -7,8 +7,6 @@ from app.db.database import get_db
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
-from app.models.event import Event
-from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 from app.usecases.get_seats import GetSeatsUsecase
 
 router = APIRouter(tags=["events"])

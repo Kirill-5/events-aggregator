@@ -1,4 +1,3 @@
-from typing import Optional, List, Dict, Any
 from app.services.events_provider_client import EventsProviderClient
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository

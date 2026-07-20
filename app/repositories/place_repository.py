@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.place import Place
-from datetime import datetime
-from typing import Optional, List
-from sqlalchemy import select
+from typing import Optional
 
 class PlaceRepository:
     def __init__(self, session: Session):
