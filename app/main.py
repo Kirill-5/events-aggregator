@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
+from app.api.routes import events_router, health_router, sync_router, tickets_router
 from app.core.scheduler import start_scheduler
-from app.api.routes import health_router, events_router, tickets_router, sync_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
