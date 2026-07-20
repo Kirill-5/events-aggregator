@@ -6,7 +6,7 @@ from app.db.database import SessionLocal
 from app.repositories import EventRepository, PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.SyncEventsUsecase import SyncEventsUsecase
-
+from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 
 def start_scheduler():
     scheduler = AsyncIOScheduler()
@@ -18,7 +18,9 @@ async def sync_job():
 
     try:
         client = EventsProviderClient(
-            base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000")
+            base_url=EVENTS_PROVIDER_URL,
+            api_key=EVENTS_PROVIDER_API_KEY
+        )
 
         event_repo = EventRepository(db)
         place_repo = PlaceRepository(db)

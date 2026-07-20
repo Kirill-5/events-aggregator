@@ -7,6 +7,7 @@ from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.models.event import Event
+from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 
 router = APIRouter(tags=["events"])
 seats_cache = {}
@@ -79,8 +80,8 @@ async def get_seats(event_id: str, db: Session = Depends(get_db)):
             }
 
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
-        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+        base_url=EVENTS_PROVIDER_URL,
+        api_key=EVENTS_PROVIDER_API_KEY
     )
     seats_data = await client.seats(event.id)
     available_seats = seats_data.get("seats", [])

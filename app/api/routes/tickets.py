@@ -6,6 +6,7 @@ from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.schemas.ticket import TicketCreate, TicketResponse
 from uuid import UUID
+from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 
 router = APIRouter(tags=["tickets"])
 
@@ -28,8 +29,8 @@ async def create_ticket(
         raise HTTPException(status_code=400, detail="Event is not published")
 
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
-        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+        base_url=EVENTS_PROVIDER_URL,
+        api_key=EVENTS_PROVIDER_API_KEY
     )
     client_reg = await client.register(
         event_id=ticket.event_id,
@@ -66,8 +67,8 @@ async def delete_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
 
     client = EventsProviderClient(
-        base_url="http://student-system-events-provider-web.student-system-events-provider.svc:8000",
-        api_key="d0kdUsSLnnWUTC2v1lzkTQHhtfJSouF1uXuXscvIDoE"
+        base_url=EVENTS_PROVIDER_URL,
+        api_key=EVENTS_PROVIDER_API_KEY
     )
     await client.cancel(ticket.event_id, ticket_id)
     ticket_repo.delete(ticket_id)
