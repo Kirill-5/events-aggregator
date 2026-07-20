@@ -1,6 +1,7 @@
 import httpx
 from typing import Optional, Dict, Any
-import json
+from urllib.parse import urljoin
+
 
 class EventsProviderClient:
     def __init__(self, base_url: str, api_key: str):
@@ -9,7 +10,7 @@ class EventsProviderClient:
         self.client = httpx.AsyncClient(timeout=30.0)
 
     async def events(self, cursor: Optional[str] = None, changed_at: Optional[str] = None) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/events/"
+        url = urljoin(self.base_url + "/", "api/events/")
         params = {}
         if cursor:
             params["cursor"] = cursor
@@ -21,23 +22,23 @@ class EventsProviderClient:
         return response.json()
 
     async def event_detail(self, event_id: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/events/{event_id}/"
+        url = urljoin(self.base_url + "/", f"api/events/{event_id}/")
         headers = {"x-api-key": self.api_key}
         response = await self.client.get(url, headers=headers)
         response.raise_for_status()
         return response.json()
 
     async def seats(self, event_id: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/events/{event_id}/seats/"
+        url = urljoin(self.base_url + "/", f"api/events/{event_id}/seats/")
         headers = {"x-api-key": self.api_key}
         response = await self.client.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        print(f"Seats response for event {event_id}: {data}")  # Добавить
+        print(f"Seats response for event {event_id}: {data}")
         return data
 
     async def register(self, event_id: str, first_name: str, last_name: str, email: str, seat: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/events/{event_id}/register/"
+        url = urljoin(self.base_url + "/", f"api/events/{event_id}/register/")
         headers = {"x-api-key": self.api_key}
         response = await self.client.post(
             url,
@@ -53,7 +54,7 @@ class EventsProviderClient:
         return response.json()
 
     async def cancel(self, event_id: str, ticket_id: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/api/events/{event_id}/unregister/"
+        url = urljoin(self.base_url + "/", f"api/events/{event_id}/unregister/")
         headers = {"x-api-key": self.api_key, "Content-Type": "application/json"}
         response = await self.client.request(
             method="DELETE",
