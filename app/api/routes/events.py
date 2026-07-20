@@ -1,18 +1,17 @@
-import time
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import Optional
 
-from app.core.config import EVENTS_PROVIDER_API_KEY, EVENTS_PROVIDER_URL
+from app.api.dependencies import get_events_provider_client
 from app.db.database import get_db
-from app.models.event import Event
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
+from app.models.event import Event
+from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
+from app.usecases.get_seats import GetSeatsUsecase
 
 router = APIRouter(tags=["events"])
-seats_cache = {}
 
 
 @router.get("/api/events")
@@ -26,7 +25,6 @@ async def get_events(
     event_repo = EventRepository(db)
     events = event_repo.list(date_from, skip, page_size)
     total_count = event_repo.count(date_from)
-
 
     next_page = page + 1 if skip + page_size < total_count else None
     previous_page = page - 1 if page > 1 else None
@@ -42,9 +40,14 @@ async def get_events(
         "results": events
     }
 
+
 @router.get("/api/events/{event_id}")
-async def get_event(event_id: str, db: Session = Depends(get_db)):
-    event = EventRepository(db).get(event_id)
+async def get_event(
+        event_id: str,
+        db: Session = Depends(get_db)
+):
+    event_repo = EventRepository(db)
+    event = event_repo.get(event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
@@ -67,29 +70,22 @@ async def get_event(event_id: str, db: Session = Depends(get_db)):
         "number_of_visitors": event.number_of_visitors,
     }
 
+
 @router.get("/api/events/{event_id}/seats")
-async def get_seats(event_id: str, db: Session = Depends(get_db)):
-    event = EventRepository(db).get(event_id)
+async def get_seats(
+        event_id: str,
+        db: Session = Depends(get_db),
+        client: EventsProviderClient = Depends(get_events_provider_client)
+):
+    event_repo = EventRepository(db)
+    event = event_repo.get(event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    if event_id in seats_cache:
-        cached_data, cache_time = seats_cache[event_id]
-        if time.time() - cache_time < 30:
-            return {
-                "event_id": event_id,
-                "available_seats": cached_data
-            }
+    usecase = GetSeatsUsecase(client, event_repo)
 
-    client = EventsProviderClient(
-        base_url=EVENTS_PROVIDER_URL,
-        api_key=EVENTS_PROVIDER_API_KEY
-    )
-    seats_data = await client.seats(event.id)
-    available_seats = seats_data.get("seats", [])
-    seats_cache[event_id] = (available_seats, time.time())
-
-    return {
-        "event_id": event.id,
-        "available_seats": available_seats
-    }
+    try:
+        seats = await usecase.do(event_id)
+        return {"event_id": event_id, "available_seats": seats}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
