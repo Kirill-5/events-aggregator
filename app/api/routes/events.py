@@ -1,13 +1,15 @@
+import time
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
-import time
+
+from app.core.config import EVENTS_PROVIDER_API_KEY, EVENTS_PROVIDER_URL
 from app.db.database import get_db
+from app.models.event import Event
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
-from app.models.event import Event
-from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 
 router = APIRouter(tags=["events"])
 seats_cache = {}
@@ -23,7 +25,7 @@ async def get_events(
     skip = (page - 1) * page_size
     event_repo = EventRepository(db)
     events = event_repo.list(date_from, skip, page_size)
-    total_count = db.query(Event).count()
+    total_count = event_repo.count(date_from)
 
 
     next_page = page + 1 if skip + page_size < total_count else None
