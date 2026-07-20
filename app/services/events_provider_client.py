@@ -34,7 +34,6 @@ class EventsProviderClient:
         response = await self.client.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        print(f"Seats response for event {event_id}: {data}")
         return data
 
     async def register(self, event_id: str, first_name: str, last_name: str, email: str, seat: str) -> Dict[str, Any]:
