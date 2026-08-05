@@ -67,7 +67,8 @@ async def create_ticket(
                 "ticket_id": str(ticket_id),
                 "event_name": event.name,
                 "user_email": ticket.email,
-                "seat": ticket.seat
+                "seat": ticket.seat,
+                "message": f"Ticket {ticket_id} purchased for event {event.name}"  # <--- ДОБАВИТЬ
             }
         )
 
