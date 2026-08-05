@@ -33,9 +33,12 @@ async def create_ticket(
         if existing:
             return {"ticket_id": existing.ticket_id}
 
-
     event_repo = EventRepository(db)
     ticket_repo = TicketRepository(db)
+
+    event = event_repo.get(ticket.event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
 
     usecase = CreateTicketUsecase(client, event_repo, ticket_repo)
 
@@ -57,10 +60,6 @@ async def create_ticket(
                 seat=ticket.seat
             )
 
-        event = event_repo.get(ticket.event_id)
-        if not event:
-            raise HTTPException(status_code=404, detail="Event not found")
-
         outbox_repo = OutboxRepository(db)
         outbox_repo.create(
             event_type="ticket_purchased",
@@ -71,8 +70,6 @@ async def create_ticket(
                 "seat": ticket.seat
             }
         )
-
-
 
         return {"ticket_id": ticket_id}
     except ValueError as e:
