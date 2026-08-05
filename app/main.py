@@ -20,6 +20,12 @@ async def lifespan(app: FastAPI):
     capashino_client = CapashinoClient(CAPASHINO_URL, CAPASHINO_API_KEY)
     outbox_repo = OutboxRepository(SessionLocal())
 
+    # бд
+    from app.db.database import engine
+    from app.models.outbox import Outbox
+    Outbox.metadata.create_all(engine)
+    # -----------------------------
+
     # запускаем воркер
     worker_task = asyncio.create_task(outbox_worker(capashino_client, outbox_repo))
 
