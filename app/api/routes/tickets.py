@@ -27,11 +27,22 @@ async def create_ticket(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid event_id format")
 
+
     if ticket.idempotency_key:
         idempotency_repo = IdempotencyKeyRepository(db)
         existing = idempotency_repo.get_by_key(ticket.idempotency_key)
         if existing:
-            return {"ticket_id": existing.ticket_id}
+
+            if (str(existing.event_id) == ticket.event_id and
+                existing.seat == ticket.seat):
+
+                return {"ticket_id": str(existing.ticket_id)}
+            else:
+
+                raise HTTPException(
+                    status_code=409,
+                    detail="Idempotency key already used with different data"
+                )
 
     event_repo = EventRepository(db)
     ticket_repo = TicketRepository(db)
@@ -51,6 +62,7 @@ async def create_ticket(
             seat=ticket.seat
         )
 
+        #
         if ticket.idempotency_key:
             idempotency_repo = IdempotencyKeyRepository(db)
             idempotency_repo.save(
@@ -68,7 +80,8 @@ async def create_ticket(
                 "event_name": event.name,
                 "user_email": ticket.email,
                 "seat": ticket.seat,
-                "message": f"Ticket {ticket_id} purchased for event {event.name}"  # <--- ДОБАВИТЬ
+                "message": f"Ticket {ticket_id} purchased for event {event.name}",
+                "idempotency_key": ticket.idempotency_key or f"ticket_{ticket_id}"
             }
         )
 

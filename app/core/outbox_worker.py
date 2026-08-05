@@ -18,7 +18,7 @@ async def outbox_worker(
                     await capashino_client.send_notification(
                         message=record.payload["message"],
                         reference_id=record.payload["ticket_id"],
-                        idempotency_key=str(record.id)
+                        idempotency_key=f"outbox_{record.id}"
                     )
                     outbox_repo.mark_as_sent(record.id)
                     logging.info(f"Outbox record {record.id} sent successfully")
