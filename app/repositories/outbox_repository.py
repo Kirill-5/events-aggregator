@@ -36,3 +36,9 @@ class OutboxRepository:
         if message:
             message.attempts += 1
             self.session.commit()
+
+    def mark_as_failed(self, outbox_id: UUID) -> None:
+        message = self.session.query(Outbox).filter(Outbox.id == outbox_id).first()
+        if message:
+            message.status = "failed"
+            self.session.commit()

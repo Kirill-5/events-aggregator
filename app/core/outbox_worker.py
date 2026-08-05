@@ -24,11 +24,13 @@ async def outbox_worker(
                     logging.info(f"Outbox record {record.id} sent successfully")
                 except Exception as e:
                     logging.error(f"Failed to send outbox record {record.id}: {e}")
+                    outbox_repo.session.rollback()
                     outbox_repo.increment_attempts(record.id)
                     if record.attempts >= max_attempts:
                         logging.warning(f"Outbox record {record.id} exceeded max attempts, marking as failed")
-                        # Опционально: добавить статус "failed" в модель Outbox
+                        outbox_repo.mark_as_failed(record.id)
         except Exception as e:
+            outbox_repo.session.rollback()
             logging.error(f"Outbox worker error: {e}")
 
         await asyncio.sleep(interval)
