@@ -1,11 +1,10 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Enum as SQLEnum
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
-from app.models.event_status import EventStatus
 
 
 class Event(Base):
