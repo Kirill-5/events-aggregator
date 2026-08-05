@@ -1,4 +1,4 @@
-__all__ = ["Place", "Event", "Registration", "SyncMetadata"]
+__all__ = ["Place", "Event", "Registration", "SyncMetadata", "Outbox", "IdempotencyKey"]
 
 from app.models.place import Place
 from app.models.event import Event

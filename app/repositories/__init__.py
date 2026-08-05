@@ -1,4 +1,4 @@
-__all__ = ["EventRepository", "PlaceRepository", "TicketRepository"]
+__all__ = ["EventRepository", "PlaceRepository", "TicketRepository", "OutboxRepository", "IdempotencyKeyRepository"]
 
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository

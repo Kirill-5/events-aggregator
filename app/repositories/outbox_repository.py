@@ -35,7 +35,7 @@ def mark_as_sent(self, outbox_id: UUID) -> None:
         message.status = "sent"
         self.session.commit()
 
-def increment_attempts(self, outbox_id: UUID) -> None
+def increment_attempts(self, outbox_id: UUID) -> None:
     message = self.session.query(Outbox).filter(Outbox.id == outbox_id).first()
     if message:
         message.attempts += 1

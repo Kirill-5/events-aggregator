@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_events_provider_client
 from app.db.database import get_db
-from app.models import idempotency_key
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.schemas.ticket import TicketCreate
