@@ -5,11 +5,14 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_events_provider_client
 from app.db.database import get_db
+from app.models import idempotency_key
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.schemas.ticket import TicketCreate
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.create_ticket import CreateTicketUsecase
+from app.repositories.idempotency_key_repository import IdempotencyKeyRepository
+from app.repositories.outbox_repository import OutboxRepository
 
 router = APIRouter(tags=["tickets"])
 
@@ -25,6 +28,13 @@ async def create_ticket(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid event_id format")
 
+    if ticket.idempotency_key:
+        idempotency_repo = IdempotencyKeyRepository(db)
+        existing = idempotency_repo.get_by_key(ticket.idempotency_key)
+        if existing:
+            return {"ticket_id": existing.ticket_id}
+
+
     event_repo = EventRepository(db)
     ticket_repo = TicketRepository(db)
 
@@ -38,6 +48,33 @@ async def create_ticket(
             email=ticket.email,
             seat=ticket.seat
         )
+
+        if ticket.idempotency_key:
+            idempotency_repo = IdempotencyKeyRepository(db)
+            idempotency_repo.save(
+                key=ticket.idempotency_key,
+                ticket_id=ticket_id,
+                event_id=ticket.event_id,
+                seat=ticket.seat
+            )
+
+        event = event_repo.get(ticket.event_id)
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+
+        outbox_repo = OutboxRepository(db)
+        outbox_repo.create(
+            event_type="ticket_purchased",
+            payload={
+                "ticket_id": str(ticket_id),
+                "event_name": event.name,
+                "user_email": ticket.email,
+                "seat": ticket.seat
+            }
+        )
+
+
+
         return {"ticket_id": ticket_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
