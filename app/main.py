@@ -1,5 +1,6 @@
-from contextlib import asynccontextmanager
 import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.api.routes import events_router, health_router, sync_router, tickets_router
