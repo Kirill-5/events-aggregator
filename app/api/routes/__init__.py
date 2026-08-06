@@ -1,6 +1,6 @@
-__all__ = ["health_router", "events_router", "tickets_router", "sync_router"]
+__all__ = ["CreateTicketUsecase", "GetSeatsUsecase", "SyncEventsUsecase", "GetEventsUsecase"]
 
-from app.api.routes.health import router as health_router
-from app.api.routes.events import router as events_router
-from app.api.routes.tickets import router as tickets_router
-from app.api.routes.sync import router as sync_router
+from app.usecases.create_ticket import CreateTicketUsecase
+from app.usecases.get_seats import GetSeatsUsecase
+from app.usecases.SyncEventsUsecase import SyncEventsUsecase
+from app.usecases.get_events import GetEventsUsecase
