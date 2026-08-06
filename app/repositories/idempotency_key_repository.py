@@ -9,7 +9,6 @@ class IdempotencyKeyRepository:
         self.session = session
 
     def get_by_key(self, key: str) -> Optional[IdempotencyKey]:
-        print(f"Searching for key: {key}")
         return self.session.query(IdempotencyKey).filter(IdempotencyKey.key == key).first()
 
     def save(self, key: str, ticket_id: UUID, event_id: UUID, seat: str) -> IdempotencyKey:
