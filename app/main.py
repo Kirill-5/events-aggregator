@@ -12,27 +12,24 @@ from app.core.config import CAPASHINO_URL, CAPASHINO_API_KEY
 from app.db.database import SessionLocal
 
 
+from app.db.database import engine
+from app.models.outbox import Outbox
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    #планировщик синхронизации
     start_scheduler()
 
-    # Создание клиента и репозитория для Outbox
     capashino_client = CapashinoClient(CAPASHINO_URL, CAPASHINO_API_KEY)
     outbox_repo = OutboxRepository(SessionLocal())
 
-    # бд
-    from app.db.database import engine
-    from app.models.outbox import Outbox
-    Outbox.metadata.create_all(engine)
-    # -----------------------------
 
-    # запускаем воркер
+    Outbox.metadata.create_all(engine)
+
     worker_task = asyncio.create_task(outbox_worker(capashino_client, outbox_repo))
 
-    yield  # приложение работает
+    yield
 
-    # остановка
     worker_task.cancel()
     await worker_task
 
