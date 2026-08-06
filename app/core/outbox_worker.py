@@ -21,13 +21,13 @@ async def outbox_worker(
                         idempotency_key=f"outbox_{record.id}"
                     )
                     outbox_repo.mark_as_sent(record.id)
-                    logging.info(f"Outbox record {record.id} sent successfully")
+                    logging.info("Outbox record %s sent successfully", record.id)
                 except Exception as e:
-                    logging.error(f"Failed to send outbox record {record.id}: {e}")
+                    logging.error("Failed to send outbox record %s: %s", record.id, e)
                     outbox_repo.session.rollback()
                     outbox_repo.increment_attempts(record.id)
                     if record.attempts >= max_attempts:
-                        logging.warning(f"Outbox record {record.id} exceeded max attempts, marking as failed")
+                        logging.warning("Outbox record %s exceeded max attempts, marking as failed", record.id)
                         outbox_repo.mark_as_failed(record.id)
         except Exception as e:
             outbox_repo.session.rollback()

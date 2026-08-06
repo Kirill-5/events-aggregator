@@ -27,7 +27,7 @@ async def sync_job():
         usecase = SyncEventsUsecase(client, event_repo, place_repo)
 
         count = await usecase.do()
-        logging.info(f"Sync completed : {count} events processed")
+        logging.info("Sync completed: %s events processed", count)
 
     except Exception as e:
         logging.error(f"Sync failed : {e}")
