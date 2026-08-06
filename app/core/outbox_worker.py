@@ -31,6 +31,6 @@ async def outbox_worker(
                         outbox_repo.mark_as_failed(record.id)
         except Exception as e:
             outbox_repo.session.rollback()
-            logging.error(f"Outbox worker error: {e}")
+            logging.error("Outbox worker error: %s", e)
 
         await asyncio.sleep(interval)

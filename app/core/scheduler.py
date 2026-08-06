@@ -30,7 +30,7 @@ async def sync_job():
         logging.info("Sync completed: %s events processed", count)
 
     except Exception as e:
-        logging.error(f"Sync failed : {e}")
+        logging.error("Sync failed: %s", e)
 
     finally:
         db.close()
