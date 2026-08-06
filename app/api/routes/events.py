@@ -8,35 +8,31 @@ from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.get_seats import GetSeatsUsecase
+from app.usecases.get_events import GetEventsUsecase
 
 router = APIRouter(tags=["events"])
 
 
 @router.get("/api/events")
 async def get_events(
-        date_from: Optional[str] = None,
-        page: int = 1,
-        page_size: int = 20,
-        db: Session = Depends(get_db)
+    date_from: Optional[str] = None,
+    page: int = 1,
+    page_size: int = 20,
+    db: Session = Depends(get_db)
 ):
-    skip = (page - 1) * page_size
+
     event_repo = EventRepository(db)
-    events = event_repo.list(date_from, skip, page_size)
-    total_count = event_repo.count(date_from)
+    place_repo = PlaceRepository(db)
+    usecase = GetEventsUsecase(event_repo, place_repo)
 
-    next_page = page + 1 if skip + page_size < total_count else None
-    previous_page = page - 1 if page > 1 else None
+    result = await usecase.do(
+        date_from=date_from,
+        page=page,
+        page_size=page_size,
+        base_url="/api/events"
+    )
 
-    base_url = "/api/events"
-    next_url = f"{base_url}?page={next_page}&page_size={page_size}" if next_page else None
-    previous_url = f"{base_url}?page={previous_page}&page_size={page_size}" if previous_page else None
-
-    return {
-        "count": total_count,
-        "next": next_url,
-        "previous": previous_url,
-        "results": events
-    }
+    return result
 
 
 @router.get("/api/events/{event_id}")
