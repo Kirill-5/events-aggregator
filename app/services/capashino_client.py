@@ -1,6 +1,7 @@
-from urllib.parse import urljoin
-import httpx
 from typing import Dict, Any
+from urllib.parse import urljoin
+
+import httpx
 
 
 class CapashinoClient:

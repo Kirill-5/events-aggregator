@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
+
+from sqlalchemy.orm import Session
 from app.models.outbox import Outbox
 
 

@@ -1,6 +1,7 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 from app.models.place import Place
-from typing import Optional
 
 class PlaceRepository:
     def __init__(self, session: Session):

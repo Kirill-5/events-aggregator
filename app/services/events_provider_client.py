@@ -1,6 +1,7 @@
-import httpx
 from typing import Optional, Dict, Any
 from urllib.parse import urljoin
+
+import httpx
 
 
 class EventsProviderClient:
