@@ -3,11 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_events_provider_client
+from app.api.dependencies import get_seats_usecase
 from app.db.database import get_db
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
-from app.services.events_provider_client import EventsProviderClient
 from app.usecases.get_seats import GetSeatsUsecase
 from app.usecases.get_events import GetEventsUsecase
 from app.usecases.get_event_detail import GetEventDetailUsecase
@@ -43,7 +42,7 @@ async def get_event(
 ):
     event_repo = EventRepository(db)
     place_repo = PlaceRepository(db)
-    usecase = GetEventDetailUsecase(event_repo, place_repo)  # ✅ используем UseCase
+    usecase = GetEventDetailUsecase(event_repo, place_repo)
 
     try:
         result = await usecase.do(event_id)
@@ -56,15 +55,8 @@ async def get_event(
 async def get_seats(
     event_id: str,
     db: Session = Depends(get_db),
-    client: EventsProviderClient = Depends(get_events_provider_client)
+    usecase: GetSeatsUsecase = Depends(get_seats_usecase),
 ):
-    event_repo = EventRepository(db)
-    event = event_repo.get(event_id)
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-
-    usecase = GetSeatsUsecase(client, event_repo)
-
     try:
         seats = await usecase.do(event_id)
         return {"event_id": event_id, "available_seats": seats}
