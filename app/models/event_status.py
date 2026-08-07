@@ -5,3 +5,4 @@ class EventStatus(str, Enum):
     DRAFT = "draft"
     CANCELLED = "cancelled"
     REGISTRATION_CLOSED = "registration_closed"
+    FINISHED = "finished"
