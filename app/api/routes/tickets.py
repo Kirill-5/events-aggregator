@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_events_provider_client
+from app.api.dependencies import get_events_provider_client, get_cancel_ticket_usecase
 from app.db.database import get_db
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
@@ -12,6 +12,7 @@ from app.repositories.outbox_repository import OutboxRepository
 from app.schemas.ticket import TicketCreate
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.create_ticket import CreateTicketUsecase
+from app.usecases.cancel_ticket import CancelTicketUsecase
 
 router = APIRouter(tags=["tickets"])
 
@@ -54,3 +55,15 @@ async def create_ticket(
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/api/tickets/{ticket_id}", status_code=status.HTTP_200_OK)
+async def cancel_ticket(
+    ticket_id: UUID,
+    usecase: CancelTicketUsecase = Depends(get_cancel_ticket_usecase),
+):
+    try:
+        await usecase.do(ticket_id)
+        return {"success": True}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
