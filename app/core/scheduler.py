@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app.core.config import EVENTS_PROVIDER_API_KEY, EVENTS_PROVIDER_URL
 from app.db.database import SessionLocal
-from app.repositories import EventRepository, PlaceRepository, SyncMetadataRepository  # ✅ добавить
+from app.repositories import EventRepository, PlaceRepository, SyncMetadataRepository
 from app.services.events_provider_client import EventsProviderClient
 from app.usecases.SyncEventsUsecase import SyncEventsUsecase
 
