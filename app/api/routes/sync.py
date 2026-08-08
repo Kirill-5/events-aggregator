@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -40,4 +40,5 @@ async def trigger_sync(db: Session = Depends(get_db)):
 
         return {"status": "success", "synced": count}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+
+        raise HTTPException(status_code=500, detail=str(e))
