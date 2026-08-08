@@ -14,8 +14,8 @@ class EventsPaginator:
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
             self.current_page = data.get("results", [])
             self.cursor = data.get("next")
-            if self.cursor and "?" in self.cursor:
-                self.cursor = self.cursor.split("?")[0]
+            if self.cursor and "/" in self.cursor:
+                self.cursor = self.cursor.split("/")[-1]
             self.page_index = 0
 
             if not self.current_page and not self.cursor:
