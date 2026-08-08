@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any
+import logging
+from typing import Dict, Any, Optional
 from urllib.parse import urljoin
 
 import httpx
@@ -18,7 +19,11 @@ class EventsProviderClient:
         if changed_at:
             params["changed_at"] = changed_at
         headers = {"x-api-key": self.api_key}
+
+        logging.info("=== EventsProviderClient: requesting %s with cursor=%s ===", url, cursor)
         response = await self.client.get(url, params=params, headers=headers)
+        logging.info("=== EventsProviderClient: response status=%s, body=%s ===", response.status_code, response.text[:200])
+
         response.raise_for_status()
         return response.json()
 
@@ -34,8 +39,7 @@ class EventsProviderClient:
         headers = {"x-api-key": self.api_key}
         response = await self.client.get(url, headers=headers)
         response.raise_for_status()
-        data = response.json()
-        return data
+        return response.json()
 
     async def register(self, event_id: str, first_name: str, last_name: str, email: str, seat: str) -> Dict[str, Any]:
         url = urljoin(self.base_url + "/", f"api/events/{event_id}/register/")

@@ -1,3 +1,5 @@
+import logging
+
 
 class EventsPaginator:
     def __init__(self, client, changed_at: str = "2000-01-01"):
@@ -13,7 +15,9 @@ class EventsPaginator:
     async def __anext__(self):
 
         if not self.current_page or self.page_index >= len(self.current_page):
+            logging.info("=== EventsPaginator: requesting page with cursor=%s ===", self.cursor)
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
+            logging.info("=== EventsPaginator: got %s events, next=%s ===", len(data.get("results", [])), data.get("next"))
             self.current_page = data.get("results", [])
             self.cursor = data.get("next")
             self.page_index = 0
