@@ -13,15 +13,12 @@ class EventsPaginator:
         if not self.current_page or self.page_index >= len(self.current_page):
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
             self.current_page = data.get("results", [])
-            self.cursor = data.get("next")
-            if self.cursor:
-                # Отрезаем всё до последнего слеша
-                self.cursor = self.cursor.split("/")[-1]
-                # Отрезаем всё после ? или %3F
-                if "?" in self.cursor:
-                    self.cursor = self.cursor.split("?")[0]
-                if "%3F" in self.cursor:
-                    self.cursor = self.cursor.split("%3F")[0]
+
+            next_cursor = data.get("next")
+            if next_cursor:
+                self.cursor = next_cursor.split("?")[0]
+            else:
+                self.cursor = None
             self.page_index = 0
 
             if not self.current_page and not self.cursor:

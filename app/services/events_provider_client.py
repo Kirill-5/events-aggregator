@@ -18,9 +18,11 @@ class EventsProviderClient:
         if changed_at:
             params["changed_at"] = changed_at
         headers = {"x-api-key": self.api_key}
-        response = await self.client.get(url, params=params, headers=headers)
-        response.raise_for_status()
-        return response.json()
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            return response.json()
 
     async def event_detail(self, event_id: str) -> Dict[str, Any]:
         url = urljoin(self.base_url + "/", f"api/events/{event_id}/")
