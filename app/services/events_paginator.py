@@ -1,6 +1,3 @@
-import logging
-
-
 class EventsPaginator:
     def __init__(self, client, changed_at: str = "2000-01-01"):
         self.client = client
