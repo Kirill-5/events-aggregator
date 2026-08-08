@@ -19,11 +19,7 @@ class EventsProviderClient:
         if changed_at:
             params["changed_at"] = changed_at
         headers = {"x-api-key": self.api_key}
-
-        logging.info("=== EventsProviderClient: requesting %s with cursor=%s ===", url, cursor)
         response = await self.client.get(url, params=params, headers=headers)
-        logging.info("=== EventsProviderClient: response status=%s, body=%s ===", response.status_code, response.text[:200])
-
         response.raise_for_status()
         return response.json()
 
