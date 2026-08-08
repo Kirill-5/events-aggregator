@@ -13,27 +13,22 @@ class EventsPaginator:
         return self
 
     async def __anext__(self):
-
         if not self.current_page or self.page_index >= len(self.current_page):
-            logging.info("=== EventsPaginator: requesting page with cursor=%s ===", self.cursor)
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
-            logging.info("=== EventsPaginator: got %s events, next=%s ===", len(data.get("results", [])), data.get("next"))
             self.current_page = data.get("results", [])
             self.cursor = data.get("next")
+            if self.cursor and "?" in self.cursor:
+                self.cursor = self.cursor.split("?")[0]
             self.page_index = 0
-
 
             if not self.current_page and not self.cursor:
                 raise StopAsyncIteration
 
-
         if not self.current_page:
             return await self.__anext__()
 
-
         event = self.current_page[self.page_index]
         self.page_index += 1
-
 
         if self.page_index >= len(self.current_page):
             self.current_page = []
