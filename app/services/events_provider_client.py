@@ -19,7 +19,7 @@ class EventsProviderClient:
             params["changed_at"] = changed_at
         headers = {"x-api-key": self.api_key}
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.get(url, params=params, headers=headers)
             response.raise_for_status()
             return response.json()
