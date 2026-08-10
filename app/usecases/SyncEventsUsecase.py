@@ -12,7 +12,7 @@ class SyncEventsUsecase:
         self.event_repo = event_repo
         self.place_repo = place_repo
 
-    async def do(self, changed_at: str = "2000-01-01") -> int:
+    async def do(self, changed_at: str = "2026-01-01") -> int:
         logging.info("=== SyncEventsUsecase.do started with changed_at=%s ===", changed_at)
         count = 0
 
