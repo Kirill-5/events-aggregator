@@ -33,4 +33,8 @@ async def outbox_worker(
             outbox_repo.session.rollback()
             logging.error("Outbox worker error: %s", e)
 
-        await asyncio.sleep(interval)
+        try:
+            await asyncio.sleep(interval)
+        except asyncio.CancelledError:
+            logging.info("Outbox worker cancelled, shutting down gracefully.")
+            break
