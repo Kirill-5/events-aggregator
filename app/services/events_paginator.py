@@ -1,3 +1,6 @@
+import re
+
+
 class EventsPaginator:
     def __init__(self, client, changed_at: str = "2000-01-01"):
         self.client = client
@@ -9,11 +12,18 @@ class EventsPaginator:
     def __aiter__(self):
         return self
 
+
+
     async def __anext__(self):
         if not self.current_page or self.page_index >= len(self.current_page):
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
             self.current_page = data.get("results", [])
-            self.cursor = data.get("next")
+            next_cursor = data.get("next")
+            if next_cursor:
+                match = re.search(r'cursor=([^&]+)', next_cursor)
+                self.cursor = match.group(1) if match else None
+            else:
+                self.cursor = None
             self.page_index = 0
 
             if not self.current_page and not self.cursor:
