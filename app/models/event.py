@@ -15,7 +15,7 @@ class Event(Base):
     place_id = Column(UUID(as_uuid=True), ForeignKey("place.id"))
     event_time = Column(DateTime)
     registration_deadline = Column(DateTime, nullable=True)
-    status = Column(SAEnum(EventStatus), default=EventStatus.DRAFT)
+    status = Column(String, default=EventStatus.DRAFT.value)
     number_of_visitors = Column(Integer)
 
     place = relationship("Place")
