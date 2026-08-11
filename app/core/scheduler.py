@@ -1,12 +1,13 @@
 import logging
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.core.config import EVENTS_PROVIDER_API_KEY, EVENTS_PROVIDER_URL
 from app.db.database import SessionLocal
 from app.repositories import EventRepository, PlaceRepository, SyncMetadataRepository
 from app.services.events_provider_client import EventsProviderClient
-from app.usecases.SyncEventsUsecase import SyncEventsUsecase
+from app.usecases.sync_events_usecase import SyncEventsUsecase
 
 
 def start_scheduler():
@@ -28,13 +29,11 @@ async def sync_job():
 
         usecase = SyncEventsUsecase(client, event_repo, place_repo)
 
-
         metadata = sync_metadata_repo.get_metadata()
         changed_at = metadata.last_changed_at or "2000-01-01"
 
         count = await usecase.do(changed_at=changed_at)
         logging.info("Sync completed: %s events processed", count)
-
 
         now = datetime.now().isoformat()
         sync_metadata_repo.update_metadata(

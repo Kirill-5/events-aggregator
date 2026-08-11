@@ -10,7 +10,7 @@ from app.services.events_provider_client import EventsProviderClient
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 from app.repositories.sync_metadata_repository import SyncMetadataRepository
-from app.usecases.SyncEventsUsecase import SyncEventsUsecase
+from app.usecases.sync_events_usecase import SyncEventsUsecase
 from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
 
 router = APIRouter(tags=["sync"])
