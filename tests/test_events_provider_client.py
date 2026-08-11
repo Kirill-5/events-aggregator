@@ -21,25 +21,19 @@ async def test_events():
 
 
 @pytest.mark.asyncio
-async def test_register():
+async def test_events_with_cursor():
     mock_response = Mock()
-    mock_response.json = Mock(return_value={"ticket_id": "123"})
+    mock_response.json = Mock(return_value={"results": [{"id": 1}], "next": "next_url"})
 
-    with patch("httpx.AsyncClient.post", return_value=mock_response) as mock_post:
+    with patch("httpx.AsyncClient.get", return_value=mock_response) as mock_get:
         client = EventsProviderClient("http://test.com", "api_key")
-        result = await client.register("event123", "Ivan", "Ivanov", "ivan@example.com", "A1")
+        result = await client.events(cursor="cursor_url", changed_at="2000-01-01")
 
-        mock_post.assert_called_once_with(
-            "http://test.com/api/events/event123/register/",
-            json={
-                "first_name": "Ivan",
-                "last_name": "Ivanov",
-                "email": "ivan@example.com",
-                "seat": "A1"
-            },
+        mock_get.assert_called_once_with(
+            "cursor_url",
             headers={"x-api-key": "api_key"}
         )
-        assert result == {"ticket_id": "123"}
+        assert result == {"results": [{"id": 1}], "next": "next_url"}
 
 
 @pytest.mark.asyncio
