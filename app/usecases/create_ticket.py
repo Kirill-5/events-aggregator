@@ -50,8 +50,12 @@ class CreateTicketUsecase:
                 else:
                     raise ConflictError("Idempotency key already used with different data")
 
-
         result = await self.client.register(event_id, first_name, last_name, email, seat)
+
+
+        if "detail" in result:
+            raise ValueError(result["detail"])
+
         ticket_id = result.get("ticket_id")
         if not ticket_id:
             raise RuntimeError("Failed to get ticket_id from provider")
