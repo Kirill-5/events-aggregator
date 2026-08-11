@@ -1,8 +1,9 @@
+from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from sqlalchemy.orm import Session
 from app.models.outbox import Outbox
+from app.models.outbox_status import OutboxStatus
 
 
 class OutboxRepository:
@@ -13,7 +14,7 @@ class OutboxRepository:
         new_message = Outbox(
             event_type=event_type,
             payload=payload,
-            status="pending",
+            status=OutboxStatus.PENDING,
             attempts=0
         )
         self.session.add(new_message)
@@ -22,14 +23,13 @@ class OutboxRepository:
         return new_message
 
     def get_pending(self, limit: int = 10) -> List[Outbox]:
-        pending_messages = self.session.query(Outbox).filter(Outbox.status == "pending")
-        sorted_pending_messages = pending_messages.order_by(Outbox.created_at.asc()).limit(limit)
-        return sorted_pending_messages
+        pending_messages = self.session.query(Outbox).filter(Outbox.status == OutboxStatus.PENDING)
+        return pending_messages.order_by(Outbox.created_at.asc()).limit(limit).all()
 
     def mark_as_sent(self, outbox_id: UUID) -> None:
         message = self.session.query(Outbox).filter(Outbox.id == outbox_id).first()
         if message:
-            message.status = "sent"
+            message.status = OutboxStatus.SENT
             self.session.commit()
 
     def increment_attempts(self, outbox_id: UUID) -> None:
@@ -41,5 +41,5 @@ class OutboxRepository:
     def mark_as_failed(self, outbox_id: UUID) -> None:
         message = self.session.query(Outbox).filter(Outbox.id == outbox_id).first()
         if message:
-            message.status = "failed"
+            message.status = OutboxStatus.FAILED
             self.session.commit()
