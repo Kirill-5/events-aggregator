@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any
+from typing import List, Optional, Dict, Any
+
 from app.repositories.event_repository import EventRepository
 from app.repositories.place_repository import PlaceRepository
 

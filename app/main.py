@@ -9,8 +9,6 @@ from app.core.outbox_worker import outbox_worker
 from app.services.capashino_client import CapashinoClient
 from app.repositories.outbox_repository import OutboxRepository
 from app.core.config import CAPASHINO_URL, CAPASHINO_API_KEY
-
-
 from app.db.database import SessionLocal, engine
 from app.models.outbox import Outbox
 

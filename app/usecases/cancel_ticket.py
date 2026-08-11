@@ -1,6 +1,7 @@
+from uuid import UUID
+
 from app.repositories.ticket_repository import TicketRepository
 from app.services.events_provider_client import EventsProviderClient
-from uuid import UUID
 
 
 class CancelTicketUsecase:
