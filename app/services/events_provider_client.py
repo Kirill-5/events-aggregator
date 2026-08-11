@@ -43,6 +43,7 @@ class EventsProviderClient:
         response = await self.client.post(
             url,
             json={
+                "event_id": event_id,
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email,
