@@ -11,8 +11,9 @@ from app.repositories.idempotency_key_repository import IdempotencyKeyRepository
 from app.repositories.outbox_repository import OutboxRepository
 from app.schemas.ticket import TicketCreate
 from app.services.events_provider_client import EventsProviderClient
-from app.usecases.create_ticket import CreateTicketUsecase
+from app.usecases.create_ticket import CreateTicketUsecase, ConflictError
 from app.usecases.cancel_ticket import CancelTicketUsecase
+
 
 router = APIRouter(tags=["tickets"])
 
@@ -53,6 +54,8 @@ async def create_ticket(
         return {"ticket_id": ticket_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except ConflictError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
