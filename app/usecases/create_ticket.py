@@ -1,4 +1,3 @@
-from app.models.event_status import EventStatus
 from app.repositories.event_repository import EventRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.repositories.idempotency_key_repository import IdempotencyKeyRepository
@@ -51,7 +50,7 @@ class CreateTicketUsecase:
                 else:
                     raise ConflictError("Idempotency key already used with different data")
 
-        # Регистрация в провайдере
+
         result = await self.client.register(event_id, first_name, last_name, email, seat)
         ticket_id = result.get("ticket_id")
         if not ticket_id:
