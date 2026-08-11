@@ -38,7 +38,8 @@ class CreateTicketUsecase:
         if not event:
             raise ValueError("Event not found")
 
-        if event.status != EventStatus.PUBLISHED:
+        provider_event = await self.client.event_detail(event_id)
+        if provider_event.get("status") != "published":
             raise ValueError("Event is not published")
 
         if idempotency_key:
