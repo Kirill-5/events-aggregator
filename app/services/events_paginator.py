@@ -13,7 +13,7 @@ class EventsPaginator:
     async def __anext__(self):
         if not self.current_page or self.page_index >= len(self.current_page):
 
-            if self.page_count >= 3:
+            if self.page_count >= 20:
                 raise StopAsyncIteration
 
             data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
