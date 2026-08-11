@@ -11,15 +11,17 @@ class EventsProviderClient:
         self.client = httpx.AsyncClient(timeout=120.0)
 
     async def events(self, cursor: Optional[str] = None, changed_at: Optional[str] = None) -> Dict[str, Any]:
-        url = urljoin(self.base_url + "/", "api/events/")
-        params = {}
-        if cursor:
-            params["cursor"] = cursor
-        if changed_at:
-            params["changed_at"] = changed_at
         headers = {"x-api-key": self.api_key}
 
-        response = await self.client.get(url, params=params, headers=headers)
+        if cursor:
+            response = await self.client.get(cursor, headers=headers)
+        else:
+            url = urljoin(self.base_url + "/", "api/events/")
+            params = {}
+            if changed_at:
+                params["changed_at"] = changed_at
+            response = await self.client.get(url, params=params, headers=headers)
+
         response.raise_for_status()
         return response.json()
 
