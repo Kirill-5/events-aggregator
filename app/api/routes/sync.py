@@ -35,7 +35,7 @@ async def trigger_sync(db: Session = Depends(get_db)):
 
         logging.info("=== 4. Getting metadata ===")
         metadata = sync_metadata_repo.get_metadata()
-        changed_at = metadata.last_changed_at or "2026-01-01"
+        changed_at = metadata.last_changed_at or "2000-01-01"
 
         logging.info("=== 5. Calling usecase.do with changed_at=%s ===", changed_at)
         count = await usecase.do(changed_at=changed_at)

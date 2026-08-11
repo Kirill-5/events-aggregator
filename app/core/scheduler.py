@@ -30,7 +30,7 @@ async def sync_job():
 
 
         metadata = sync_metadata_repo.get_metadata()
-        changed_at = metadata.last_changed_at or "2026-01-01"
+        changed_at = metadata.last_changed_at or "2000-01-01"
 
         count = await usecase.do(changed_at=changed_at)
         logging.info("Sync completed: %s events processed", count)
