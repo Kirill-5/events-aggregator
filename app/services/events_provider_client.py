@@ -45,7 +45,6 @@ class EventsProviderClient:
         response = await self.client.post(
             url,
             json={
-                "event_id": event_id,
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email,
@@ -53,9 +52,6 @@ class EventsProviderClient:
             },
             headers=headers
         )
-
-        if response.status_code >= 400:
-            return response.json()
         response.raise_for_status()
         return response.json()
 
