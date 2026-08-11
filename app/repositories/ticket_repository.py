@@ -30,5 +30,3 @@ class TicketRepository:
         if ticket_registration:
             self.session.delete(ticket_registration)
             self.session.commit()
-        else:
-            pass

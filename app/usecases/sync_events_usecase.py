@@ -13,12 +13,9 @@ class SyncEventsUsecase:
         self.place_repo = place_repo
 
     async def do(self, changed_at: str = "2000-01-01") -> int:
-        logging.info("=== SyncEventsUsecase.do started with changed_at=%s ===", changed_at)
         count = 0
 
         async for event_data in EventsPaginator(self.client, changed_at=changed_at):
-            logging.info("=== SyncEventsUsecase: processing event %s ===", event_data.get("id"))
-
             place = self.place_repo.upsert(event_data["place"])
 
             self.event_repo.upsert({
@@ -32,5 +29,4 @@ class SyncEventsUsecase:
             })
             count += 1
 
-        logging.info("=== SyncEventsUsecase.do finished, count=%s ===", count)
         return count
