@@ -53,6 +53,8 @@ class CreateTicketUsecase:
         result = await self.client.register(event_id, first_name, last_name, email, seat)
 
 
+        if isinstance(result, list):
+            raise ValueError(result[0] if result else "Unknown provider error")
         if "detail" in result:
             raise ValueError(result["detail"])
 
