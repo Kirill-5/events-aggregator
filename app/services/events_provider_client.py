@@ -53,6 +53,9 @@ class EventsProviderClient:
             },
             headers=headers
         )
+
+        if response.status_code >= 400:
+            return response.json()
         response.raise_for_status()
         return response.json()
 
