@@ -1,14 +1,12 @@
 from typing import Optional, Dict, Any
 
 from app.repositories.event_repository import EventRepository
-from app.repositories.place_repository import PlaceRepository
 
 
 
 class GetEventsUsecase:
-    def __init__(self, event_repo: EventRepository, place_repo: PlaceRepository):
+    def __init__(self, event_repo: EventRepository):
         self.event_repo = event_repo
-        self.place_repo = place_repo
 
     async def do(
         self,
@@ -33,7 +31,7 @@ class GetEventsUsecase:
 
         results = []
         for event in events:
-            place = self.place_repo.get(event.place_id)
+            place = event.place
             results.append({
                 "id": event.id,
                 "name": event.name,

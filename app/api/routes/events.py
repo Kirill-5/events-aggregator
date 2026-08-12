@@ -22,8 +22,7 @@ async def get_events(
     db: Session = Depends(get_db)
 ):
     event_repo = EventRepository(db)
-    place_repo = PlaceRepository(db)
-    usecase = GetEventsUsecase(event_repo, place_repo)
+    usecase = GetEventsUsecase(event_repo)
 
     result = await usecase.do(
         date_from=date_from,
