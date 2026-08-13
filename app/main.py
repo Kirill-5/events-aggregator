@@ -7,9 +7,8 @@ from app.api.routes import events_router, health_router, sync_router, tickets_ro
 from app.core.scheduler import start_scheduler
 from app.core.outbox_worker import outbox_worker
 from app.services.capashino_client import CapashinoClient
-from app.repositories.outbox_repository import OutboxRepository
 from app.core.config import CAPASHINO_URL, CAPASHINO_API_KEY
-from app.db.database import SessionLocal, engine
+from app.db.database import engine
 from app.models.outbox import Outbox
 
 
@@ -18,12 +17,11 @@ async def lifespan(app: FastAPI):
     start_scheduler()
 
     capashino_client = CapashinoClient(CAPASHINO_URL, CAPASHINO_API_KEY)
-    outbox_repo = OutboxRepository(SessionLocal())
 
+    async with engine.begin() as conn:
+        await conn.run_sync(Outbox.metadata.create_all)
 
-    Outbox.metadata.create_all(engine)
-
-    worker_task = asyncio.create_task(outbox_worker(capashino_client, outbox_repo))
+    worker_task = asyncio.create_task(outbox_worker(capashino_client))
 
     yield
 

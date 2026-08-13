@@ -17,32 +17,30 @@ def start_scheduler():
 
 
 async def sync_job():
-    db = SessionLocal()
-    try:
-        client = EventsProviderClient(
-            base_url=EVENTS_PROVIDER_URL,
-            api_key=EVENTS_PROVIDER_API_KEY
-        )
-        event_repo = EventRepository(db)
-        place_repo = PlaceRepository(db)
-        sync_metadata_repo = SyncMetadataRepository(db)
+    async with SessionLocal() as db:
+        try:
+            client = EventsProviderClient(
+                base_url=EVENTS_PROVIDER_URL,
+                api_key=EVENTS_PROVIDER_API_KEY
+            )
+            event_repo = EventRepository(db)
+            place_repo = PlaceRepository(db)
+            sync_metadata_repo = SyncMetadataRepository(db)
 
-        usecase = SyncEventsUsecase(client, event_repo, place_repo)
+            usecase = SyncEventsUsecase(client, event_repo, place_repo)
 
-        metadata = sync_metadata_repo.get_metadata()
-        changed_at = metadata.last_changed_at or "2000-01-01"
+            metadata = await sync_metadata_repo.get_metadata()
+            changed_at = metadata.last_changed_at or "2000-01-01"
 
-        count = await usecase.do(changed_at=changed_at)
-        logging.info("Sync completed: %s events processed", count)
+            count = await usecase.do(changed_at=changed_at)
+            logging.info("Sync completed: %s events processed", count)
 
-        now = datetime.now().isoformat()
-        sync_metadata_repo.update_metadata(
-            last_sync_time=datetime.now(),
-            last_changed_at=now,
-            sync_status="success"
-        )
+            now = datetime.now().isoformat()
+            await sync_metadata_repo.update_metadata(
+                last_sync_time=datetime.now(),
+                last_changed_at=now,
+                sync_status="success"
+            )
 
-    except Exception as e:
-        logging.error("Sync failed: %s", e)
-    finally:
-        db.close()
+        except Exception as e:
+            logging.error("Sync failed: %s", e)
