@@ -10,11 +10,11 @@ class GetEventDetailUsecase:
         self.place_repo = place_repo
 
     async def do(self, event_id: str) -> Dict[str, Any]:
-        event = self.event_repo.get(event_id)
+        event = await self.event_repo.get(event_id)
         if not event:
             raise ValueError("Event not found")
 
-        place = self.place_repo.get(event.place_id)
+        place = await self.place_repo.get(event.place_id)
 
         return {
             "id": event.id,

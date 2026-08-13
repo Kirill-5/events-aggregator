@@ -12,7 +12,7 @@ class GetSeatsUsecase:
         self._cache: Dict[str, tuple] = {}
 
     async def do(self, event_id: str) -> List[str]:
-        event = self.event_repo.get(event_id)
+        event = await self.event_repo.get(event_id)
         if not event:
             raise ValueError("Event not found")
 

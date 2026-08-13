@@ -14,9 +14,9 @@ class SyncEventsUsecase:
         count = 0
 
         async for event_data in EventsPaginator(self.client, changed_at=changed_at):
-            place = self.place_repo.upsert(event_data["place"])
+            place = await self.place_repo.upsert(event_data["place"])
 
-            self.event_repo.upsert({
+            await self.event_repo.upsert({
                 "id": event_data["id"],
                 "name": event_data["name"],
                 "place_id": place.id,

@@ -10,9 +10,9 @@ class CancelTicketUsecase:
         self.ticket_repo = ticket_repo
 
     async def do(self, ticket_id: UUID) -> None:
-        ticket = self.ticket_repo.get(str(ticket_id))
+        ticket = await self.ticket_repo.get(str(ticket_id))
         if not ticket:
             raise ValueError("Ticket not found")
 
         await self.client.cancel(ticket.event_id, str(ticket_id))
-        self.ticket_repo.delete(str(ticket_id))
+        await self.ticket_repo.delete(str(ticket_id))

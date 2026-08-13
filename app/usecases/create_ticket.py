@@ -33,7 +33,7 @@ class CreateTicketUsecase:
         seat: str,
         idempotency_key: str = None
     ) -> str:
-        event = self.event_repo.get(event_id)
+        event = await self.event_repo.get(event_id)
         if not event:
             raise ValueError("Event not found")
 
@@ -42,7 +42,7 @@ class CreateTicketUsecase:
             raise ValueError("Event is not published")
 
         if idempotency_key:
-            existing = self.idempotency_repo.get_by_key(idempotency_key)
+            existing = await self.idempotency_repo.get_by_key(idempotency_key)
             if existing:
                 if (str(existing.event_id) == event_id and
                     existing.seat == seat):
@@ -51,7 +51,6 @@ class CreateTicketUsecase:
                     raise ConflictError("Idempotency key already used with different data")
 
         result = await self.client.register(event_id, first_name, last_name, email, seat)
-
 
         if isinstance(result, list):
             raise ValueError(result[0] if result else "Unknown provider error")
@@ -62,7 +61,7 @@ class CreateTicketUsecase:
         if not ticket_id:
             raise RuntimeError("Failed to get ticket_id from provider")
 
-        self.ticket_repo.create(
+        await self.ticket_repo.create(
             event_id=event_id,
             ticket_id=ticket_id,
             first_name=first_name,
@@ -72,14 +71,14 @@ class CreateTicketUsecase:
         )
 
         if idempotency_key:
-            self.idempotency_repo.save(
+            await self.idempotency_repo.save(
                 key=idempotency_key,
                 ticket_id=ticket_id,
                 event_id=event_id,
                 seat=seat
             )
 
-        self.outbox_repo.create(
+        await self.outbox_repo.create(
             event_type="ticket_purchased",
             payload={
                 "ticket_id": str(ticket_id),

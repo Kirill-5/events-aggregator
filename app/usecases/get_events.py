@@ -3,7 +3,6 @@ from typing import Optional, Dict, Any
 from app.repositories.event_repository import EventRepository
 
 
-
 class GetEventsUsecase:
     def __init__(self, event_repo: EventRepository):
         self.event_repo = event_repo
@@ -17,17 +16,14 @@ class GetEventsUsecase:
     ) -> Dict[str, Any]:
         skip = (page - 1) * page_size
 
-
-        events = self.event_repo.list(date_from, skip, page_size)
-        total_count = self.event_repo.count(date_from)
-
+        events = await self.event_repo.list(date_from, skip, page_size)
+        total_count = await self.event_repo.count(date_from)
 
         next_page = page + 1 if skip + page_size < total_count else None
         previous_page = page - 1 if page > 1 else None
 
         next_url = f"{base_url}?page={next_page}&page_size={page_size}" if next_page else None
         previous_url = f"{base_url}?page={previous_page}&page_size={page_size}" if previous_page else None
-
 
         results = []
         for event in events:
