@@ -1,32 +1,38 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.registration import Registration
 
 
 class TicketRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get(self, ticket_id: str) -> Optional[Registration]:
-        return self.session.query(Registration).filter(Registration.ticket_id == ticket_id).first()
+    async def get(self, ticket_id: str) -> Optional[Registration]:
+        query = select(Registration).filter(Registration.ticket_id == ticket_id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
 
-    def create(self, event_id: str, ticket_id: str, first_name: str, last_name: str, email: str, seat:str) -> Registration:
+    async def create(self, event_id: str, ticket_id: str, first_name: str, last_name: str, email: str, seat: str) -> Registration:
         registration = Registration(
-            event_id = event_id,
-            ticket_id = ticket_id,
-            first_name = first_name,
-            last_name = last_name,
-            email = email,
-            seat = seat
+            event_id=event_id,
+            ticket_id=ticket_id,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            seat=seat
         )
         self.session.add(registration)
-        self.session.commit()
-        self.session.refresh(registration)
+        await self.session.commit()
+        await self.session.refresh(registration)
         return registration
 
-    def delete(self, ticket_id: str) -> None:
-        ticket_registration = self.session.query(Registration).filter(Registration.ticket_id == ticket_id).first()
+    async def delete(self, ticket_id: str) -> None:
+        query = select(Registration).filter(Registration.ticket_id == ticket_id)
+        result = await self.session.execute(query)
+        ticket_registration = result.scalars().first()
         if ticket_registration:
-            self.session.delete(ticket_registration)
-            self.session.commit()
+            await self.session.delete(ticket_registration)
+            await self.session.commit()

@@ -1,33 +1,41 @@
 from typing import List, Optional
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.models.event import Event
 
 
 class EventRepository:
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    def count(self, date_from: Optional[str] = None) -> int:
-        query = self.session.query(Event)
+    async def count(self, date_from: Optional[str] = None) -> int:
+        query = select(func.count()).select_from(Event)
         if date_from:
-            query = query.filter(Event.event_time >= date_from)
-        return query.count()
+            query = query.where(Event.event_time >= date_from)
+        result = await self.session.execute(query)
+        return result.scalar_one()
 
-    def get(self, event_id: str) -> Optional[Event]:
-        return self.session.query(Event).filter(Event.id == event_id).first()
+    async def get(self, event_id: str) -> Optional[Event]:
+        query = select(Event).filter(Event.id == event_id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
 
-    def list(self, date_from: Optional[str] = None, skip: int = 0, limit: int = 20) -> List[Event]:
-        query = self.session.query(Event).options(joinedload(Event.place))
+    async def list(self, date_from: Optional[str] = None, skip: int = 0, limit: int = 20) -> List[Event]:
+        query = select(Event).options(joinedload(Event.place))
         if date_from:
-            query = query.filter(Event.event_time >= date_from)
+            query = query.where(Event.event_time >= date_from)
         query = query.offset(skip).limit(limit)
-        return query.all()
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
-    def upsert(self, event_data: dict) -> Event:
-        event = self.session.query(Event).filter(Event.id == event_data['id']).first()
+    async def upsert(self, event_data: dict) -> Event:
+        query = select(Event).filter(Event.id == event_data['id'])
+        result = await self.session.execute(query)
+        event = result.scalars().first()
 
         if event:
             event.name = event_data.get('name', event.name)
@@ -48,5 +56,5 @@ class EventRepository:
             )
             self.session.add(event)
 
-        self.session.commit()
+        await self.session.commit()
         return event

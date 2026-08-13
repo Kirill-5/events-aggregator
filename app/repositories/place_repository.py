@@ -1,25 +1,30 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.place import Place
 
+
 class PlaceRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
+    async def get(self, place_id: int) -> Optional[Place]:
+        query = select(Place).filter(Place.id == place_id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
 
-    def get(self, place_id: int) -> Optional[Place]:
-        return self.session.query(Place).filter(Place.id == place_id).first()
-
-    def upsert(self, place_data: dict) -> Place:
-        place = self.session.query(Place).filter(Place.id == place_data['id']).first()
+    async def upsert(self, place_data: dict) -> Place:
+        query = select(Place).filter(Place.id == place_data['id'])
+        result = await self.session.execute(query)
+        place = result.scalars().first()
 
         if place:
             place.name = place_data.get('name', place.name)
             place.city = place_data.get('city', place.city)
             place.address = place_data.get('address', place.address)
             place.seats_pattern = place_data.get('seats_pattern', place.seats_pattern)
-
         else:
             place = Place(
                 id=place_data['id'],
@@ -27,9 +32,8 @@ class PlaceRepository:
                 city=place_data['city'],
                 address=place_data['address'],
                 seats_pattern=place_data['seats_pattern']
-
-                )
+            )
             self.session.add(place)
 
-        self.session.commit()
+        await self.session.commit()
         return place

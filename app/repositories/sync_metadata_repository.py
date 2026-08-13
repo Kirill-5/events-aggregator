@@ -1,14 +1,19 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.sync_metadata import SyncMetadata
 
+
 class SyncMetadataRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_metadata(self) -> SyncMetadata:
-        metadata = self.session.query(SyncMetadata).first()
+    async def get_metadata(self) -> SyncMetadata:
+        query = select(SyncMetadata)
+        result = await self.session.execute(query)
+        metadata = result.scalars().first()
         if not metadata:
             metadata = SyncMetadata(
                 last_sync_time=None,
@@ -16,12 +21,14 @@ class SyncMetadataRepository:
                 sync_status="pending"
             )
             self.session.add(metadata)
-            self.session.commit()
-            self.session.refresh(metadata)
+            await self.session.commit()
+            await self.session.refresh(metadata)
         return metadata
 
-    def update_metadata(self, last_sync_time: datetime, last_changed_at: str, sync_status: str) -> None:
-        metadata = self.session.query(SyncMetadata).first()
+    async def update_metadata(self, last_sync_time: datetime, last_changed_at: str, sync_status: str) -> None:
+        query = select(SyncMetadata)
+        result = await self.session.execute(query)
+        metadata = result.scalars().first()
         if not metadata:
             metadata = SyncMetadata(
                 last_sync_time=last_sync_time,
@@ -33,4 +40,4 @@ class SyncMetadataRepository:
             metadata.last_sync_time = last_sync_time
             metadata.last_changed_at = last_changed_at
             metadata.sync_status = sync_status
-        self.session.commit()
+        await self.session.commit()
