@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_seats_usecase
 from app.db.database import get_db
@@ -19,7 +19,7 @@ async def get_events(
     date_from: Optional[str] = None,
     page: int = 1,
     page_size: int = 20,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     event_repo = EventRepository(db)
     usecase = GetEventsUsecase(event_repo)
@@ -37,7 +37,7 @@ async def get_events(
 @router.get("/api/events/{event_id}")
 async def get_event(
     event_id: str,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     event_repo = EventRepository(db)
     place_repo = PlaceRepository(db)
@@ -53,7 +53,7 @@ async def get_event(
 @router.get("/api/events/{event_id}/seats")
 async def get_seats(
     event_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     usecase: GetSeatsUsecase = Depends(get_seats_usecase),
 ):
     try:

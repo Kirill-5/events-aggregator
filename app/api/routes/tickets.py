@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_events_provider_client, get_cancel_ticket_usecase
 from app.db.database import get_db
@@ -21,7 +21,7 @@ router = APIRouter(tags=["tickets"])
 @router.post("/api/tickets", status_code=status.HTTP_201_CREATED)
 async def create_ticket(
     ticket: TicketCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     client: EventsProviderClient = Depends(get_events_provider_client)
 ):
     try:

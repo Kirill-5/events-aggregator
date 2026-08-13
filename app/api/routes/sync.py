@@ -3,7 +3,7 @@ import traceback
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.services.events_provider_client import EventsProviderClient
@@ -17,7 +17,7 @@ router = APIRouter(tags=["sync"])
 
 
 @router.post("/api/sync/trigger")
-async def trigger_sync(db: Session = Depends(get_db)):
+async def trigger_sync(db: AsyncSession = Depends(get_db)):
     try:
         client = EventsProviderClient(
             base_url=EVENTS_PROVIDER_URL,
@@ -30,13 +30,13 @@ async def trigger_sync(db: Session = Depends(get_db)):
 
         usecase = SyncEventsUsecase(client, event_repo, place_repo)
 
-        metadata = sync_metadata_repo.get_metadata()
+        metadata = await sync_metadata_repo.get_metadata()
         changed_at = (metadata.last_changed_at or "2000-01-01").split("T")[0]
 
         count = await usecase.do(changed_at=changed_at)
 
         now = datetime.now().isoformat()
-        sync_metadata_repo.update_metadata(
+        await sync_metadata_repo.update_metadata(
             last_sync_time=datetime.now(),
             last_changed_at=now,
             sync_status="success"
