@@ -14,7 +14,10 @@ class Outbox(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_type = Column(String, nullable=False)
     payload = Column(JSON, nullable=False)
-    status = Column(SAEnum(OutboxStatus), default=OutboxStatus.PENDING)
+    status = Column(
+        SAEnum(OutboxStatus, native_enum=False, values_callable=lambda enum_cls: [e.value for e in enum_cls]),
+        default=OutboxStatus.PENDING
+    )
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
                         onupdate=lambda: datetime.now(timezone.utc))
