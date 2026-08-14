@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy import func, select
@@ -15,7 +16,7 @@ class EventRepository:
     async def count(self, date_from: Optional[str] = None) -> int:
         query = select(func.count()).select_from(Event)
         if date_from:
-            query = query.where(Event.event_time >= date_from)
+            query = query.where(Event.event_time >= datetime.fromisoformat(date_from))
         result = await self.session.execute(query)
         return result.scalar_one()
 
@@ -27,7 +28,7 @@ class EventRepository:
     async def list(self, date_from: Optional[str] = None, skip: int = 0, limit: int = 20) -> List[Event]:
         query = select(Event).options(joinedload(Event.place))
         if date_from:
-            query = query.where(Event.event_time >= date_from)
+            query = query.where(Event.event_time >= datetime.fromisoformat(date_from))
         query = query.offset(skip).limit(limit)
         result = await self.session.execute(query)
         return result.scalars().all()
