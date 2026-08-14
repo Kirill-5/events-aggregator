@@ -1,5 +1,5 @@
-from datetime import datetime
 from typing import List, Optional
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,6 +65,10 @@ class EventRepository:
 
     @staticmethod
     def _parse_datetime(value):
-        if value is None or isinstance(value, datetime):
-            return value
-        return datetime.fromisoformat(value)
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        if value.tzinfo is not None:
+            value = value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
