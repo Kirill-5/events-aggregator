@@ -14,9 +14,9 @@ class Outbox(Base):
     event_type = Column(String, nullable=False)
     payload = Column(JSON, nullable=False)
     status = Column(String, default="pending")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+                        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     attempts = Column(Integer, default=0)
 
     __table_args__ = (

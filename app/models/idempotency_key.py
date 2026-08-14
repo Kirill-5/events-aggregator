@@ -15,7 +15,7 @@ class IdempotencyKey(Base):
     ticket_id = Column(UUID(as_uuid=True), nullable=False)
     event_id = Column(UUID(as_uuid=True), nullable=False)
     seat = Column(String, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     __table_args__ = (
         Index("idx_idempotency_keys_ticket_id", "ticket_id"),
