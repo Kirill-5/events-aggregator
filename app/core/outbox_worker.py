@@ -16,12 +16,13 @@ async def outbox_worker(
             async with SessionLocal() as db:
                 outbox_repo = OutboxRepository(db)
                 pending = await outbox_repo.get_pending(limit=10)
-                for record in pending:
-                    record_id = record.id
+                records_data = [(r.id, dict(r.payload)) for r in pending]
+
+                for record_id, payload in records_data:
                     try:
                         await capashino_client.send_notification(
-                            message=record.payload["message"],
-                            reference_id=record.payload["ticket_id"],
+                            message=payload["message"],
+                            reference_id=payload["ticket_id"],
                             idempotency_key=str(record_id)
                         )
                         await outbox_repo.mark_as_sent(record_id)
