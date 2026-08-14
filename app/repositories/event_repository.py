@@ -38,11 +38,14 @@ class EventRepository:
         result = await self.session.execute(query)
         event = result.scalars().first()
 
+        event_time = self._parse_datetime(event_data.get('event_time'))
+        registration_deadline = self._parse_datetime(event_data.get('registration_deadline'))
+
         if event:
             event.name = event_data.get('name', event.name)
             event.place_id = event_data.get('place_id', event.place_id)
-            event.event_time = event_data.get('event_time', event.event_time)
-            event.registration_deadline = event_data.get('registration_deadline', event.registration_deadline)
+            event.event_time = event_time or event.event_time
+            event.registration_deadline = registration_deadline or event.registration_deadline
             event.status = event_data.get('status', event.status)
             event.number_of_visitors = event_data.get('number_of_visitors', event.number_of_visitors)
         else:
@@ -50,8 +53,8 @@ class EventRepository:
                 id=event_data['id'],
                 name=event_data['name'],
                 place_id=event_data['place_id'],
-                event_time=event_data['event_time'],
-                registration_deadline=event_data['registration_deadline'],
+                event_time=event_time,
+                registration_deadline=registration_deadline,
                 status=event_data['status'],
                 number_of_visitors=event_data['number_of_visitors'],
             )
@@ -59,3 +62,9 @@ class EventRepository:
 
         await self.session.commit()
         return event
+
+    @staticmethod
+    def _parse_datetime(value):
+        if value is None or isinstance(value, datetime):
+            return value
+        return datetime.fromisoformat(value)
