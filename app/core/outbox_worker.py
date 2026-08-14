@@ -17,21 +17,26 @@ async def outbox_worker(
                 outbox_repo = OutboxRepository(db)
                 pending = await outbox_repo.get_pending(limit=10)
                 for record in pending:
+                    record_id = record.id
                     try:
                         await capashino_client.send_notification(
                             message=record.payload["message"],
                             reference_id=record.payload["ticket_id"],
-                            idempotency_key=str(record.id)
+                            idempotency_key=str(record_id)
                         )
-                        await outbox_repo.mark_as_sent(record.id)
-                        logging.info("Outbox record %s sent successfully", record.id)
+                        await outbox_repo.mark_as_sent(record_id)
+                        await db.commit()
+                        logging.info("Outbox record %s sent successfully", record_id)
                     except Exception as e:
-                        logging.error("Failed to send outbox record %s: %s", record.id, e)
+                        logging.error("Failed to send outbox record %s: %s", record_id, e)
                         await db.rollback()
-                        await outbox_repo.increment_attempts(record.id)
-                        if record.attempts >= max_attempts:
-                            logging.warning("Outbox record %s exceeded max attempts, marking as failed", record.id)
-                            await outbox_repo.mark_as_failed(record.id)
+                        await outbox_repo.increment_attempts(record_id)
+                        await db.commit()
+                        updated = await outbox_repo.get_by_id(record_id)
+                        if updated and updated.attempts >= max_attempts:
+                            logging.warning("Outbox record %s exceeded max attempts, marking as failed", record_id)
+                            await outbox_repo.mark_as_failed(record_id)
+                            await db.commit()
         except Exception as e:
             logging.error("Outbox worker error: %s", e)
 

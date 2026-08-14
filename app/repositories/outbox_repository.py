@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -27,29 +27,26 @@ class OutboxRepository:
     async def get_pending(self, limit: int = 10) -> List[Outbox]:
         query = select(Outbox).filter(Outbox.status == OutboxStatus.PENDING)
         query = query.order_by(Outbox.created_at.asc()).limit(limit)
+        query = query.with_for_update(skip_locked=True)
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def mark_as_sent(self, outbox_id: UUID) -> None:
+    async def get_by_id(self, outbox_id: UUID) -> Optional[Outbox]:
         query = select(Outbox).filter(Outbox.id == outbox_id)
         result = await self.session.execute(query)
-        message = result.scalars().first()
+        return result.scalars().first()
+
+    async def mark_as_sent(self, outbox_id: UUID) -> None:
+        message = await self.get_by_id(outbox_id)
         if message:
             message.status = OutboxStatus.SENT
-            await self.session.commit()
 
     async def increment_attempts(self, outbox_id: UUID) -> None:
-        query = select(Outbox).filter(Outbox.id == outbox_id)
-        result = await self.session.execute(query)
-        message = result.scalars().first()
+        message = await self.get_by_id(outbox_id)
         if message:
             message.attempts += 1
-            await self.session.commit()
 
     async def mark_as_failed(self, outbox_id: UUID) -> None:
-        query = select(Outbox).filter(Outbox.id == outbox_id)
-        result = await self.session.execute(query)
-        message = result.scalars().first()
+        message = await self.get_by_id(outbox_id)
         if message:
             message.status = OutboxStatus.FAILED
-            await self.session.commit()
