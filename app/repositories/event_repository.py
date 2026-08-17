@@ -1,7 +1,8 @@
-from typing import List, Optional
 from datetime import datetime, timezone
+from typing import List, Optional
 
 from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -34,34 +35,32 @@ class EventRepository:
         return result.scalars().all()
 
     async def upsert(self, event_data: dict) -> Event:
-        query = select(Event).filter(Event.id == event_data['id'])
-        result = await self.session.execute(query)
-        event = result.scalars().first()
-
         event_time = self._parse_datetime(event_data.get('event_time'))
         registration_deadline = self._parse_datetime(event_data.get('registration_deadline'))
 
-        if event:
-            event.name = event_data.get('name', event.name)
-            event.place_id = event_data.get('place_id', event.place_id)
-            event.event_time = event_time or event.event_time
-            event.registration_deadline = registration_deadline or event.registration_deadline
-            event.status = event_data.get('status', event.status)
-            event.number_of_visitors = event_data.get('number_of_visitors', event.number_of_visitors)
-        else:
-            event = Event(
-                id=event_data['id'],
-                name=event_data['name'],
-                place_id=event_data['place_id'],
-                event_time=event_time,
-                registration_deadline=registration_deadline,
-                status=event_data['status'],
-                number_of_visitors=event_data['number_of_visitors'],
-            )
-            self.session.add(event)
-
+        stmt = pg_insert(Event).values(
+            id=event_data['id'],
+            name=event_data['name'],
+            place_id=event_data['place_id'],
+            event_time=event_time,
+            registration_deadline=registration_deadline,
+            status=event_data['status'],
+            number_of_visitors=event_data.get('number_of_visitors', 0),
+        )
+        stmt = stmt.on_conflict_do_update(
+            index_elements=['id'],
+            set_={
+                'name': stmt.excluded.name,
+                'place_id': stmt.excluded.place_id,
+                'event_time': stmt.excluded.event_time,
+                'registration_deadline': stmt.excluded.registration_deadline,
+                'status': stmt.excluded.status,
+                'number_of_visitors': stmt.excluded.number_of_visitors,
+            }
+        )
+        await self.session.execute(stmt)
         await self.session.commit()
-        return event
+        return await self.get(event_data['id'])
 
     @staticmethod
     def _parse_datetime(value):

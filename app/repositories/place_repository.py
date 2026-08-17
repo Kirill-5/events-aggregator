@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.place import Place
@@ -16,24 +17,22 @@ class PlaceRepository:
         return result.scalars().first()
 
     async def upsert(self, place_data: dict) -> Place:
-        query = select(Place).filter(Place.id == place_data['id'])
-        result = await self.session.execute(query)
-        place = result.scalars().first()
-
-        if place:
-            place.name = place_data.get('name', place.name)
-            place.city = place_data.get('city', place.city)
-            place.address = place_data.get('address', place.address)
-            place.seats_pattern = place_data.get('seats_pattern', place.seats_pattern)
-        else:
-            place = Place(
-                id=place_data['id'],
-                name=place_data['name'],
-                city=place_data['city'],
-                address=place_data['address'],
-                seats_pattern=place_data['seats_pattern']
-            )
-            self.session.add(place)
-
+        stmt = pg_insert(Place).values(
+            id=place_data['id'],
+            name=place_data['name'],
+            city=place_data['city'],
+            address=place_data['address'],
+            seats_pattern=place_data['seats_pattern']
+        )
+        stmt = stmt.on_conflict_do_update(
+            index_elements=['id'],
+            set_={
+                'name': stmt.excluded.name,
+                'city': stmt.excluded.city,
+                'address': stmt.excluded.address,
+                'seats_pattern': stmt.excluded.seats_pattern,
+            }
+        )
+        await self.session.execute(stmt)
         await self.session.commit()
-        return place
+        return await self.get(place_data['id'])
