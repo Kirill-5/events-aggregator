@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.outbox import Outbox
@@ -12,11 +12,11 @@ class OutboxRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, event_type: str, payload: dict) -> Outbox:
+    async def create(self, event_type: str, payload: dict, status: OutboxStatus = OutboxStatus.PENDING) -> Outbox:
         new_message = Outbox(
             event_type=event_type,
             payload=payload,
-            status=OutboxStatus.PENDING,
+            status=status,
             attempts=0
         )
         self.session.add(new_message)
@@ -35,6 +35,11 @@ class OutboxRepository:
         query = select(Outbox).filter(Outbox.id == outbox_id)
         result = await self.session.execute(query)
         return result.scalars().first()
+
+    async def count_by_event_type(self, event_type: str) -> int:
+        query = select(func.count()).select_from(Outbox).filter(Outbox.event_type == event_type)
+        result = await self.session.execute(query)
+        return result.scalar_one()
 
     async def mark_as_sent(self, outbox_id: UUID) -> None:
         message = await self.get_by_id(outbox_id)
