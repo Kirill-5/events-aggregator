@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.routes import events_router, health_router, sync_router, tickets_router
+from app.api.routes import events_router, health_router, metrics_router, sync_router, tickets_router
 from app.core.metrics_middleware import MetricsMiddleware
 from app.core.scheduler import start_scheduler
 from app.core.outbox_worker import outbox_worker
@@ -38,3 +38,4 @@ app.include_router(health_router)
 app.include_router(events_router)
 app.include_router(tickets_router)
 app.include_router(sync_router)
+app.include_router(metrics_router)

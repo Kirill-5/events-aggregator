@@ -33,3 +33,11 @@ def get_seats_usecase(
 ) -> GetSeatsUsecase:
     event_repo = EventRepository(db)
     return GetSeatsUsecase(client, event_repo)
+
+
+def get_event_repository(db: AsyncSession = Depends(get_db)) -> EventRepository:
+    return EventRepository(db)
+
+
+def get_outbox_repository(db: AsyncSession = Depends(get_db)) -> OutboxRepository:
+    return OutboxRepository(db)
