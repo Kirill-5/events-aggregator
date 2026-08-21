@@ -1,5 +1,6 @@
 from typing import List
 
+from app.core.metrics import cache_hits_total, cache_misses_total
 from app.repositories.event_repository import EventRepository
 from app.services import seats_cache
 from app.services.events_provider_client import EventsProviderClient
@@ -17,7 +18,10 @@ class GetSeatsUsecase:
 
         cached = seats_cache.get(event_id)
         if cached is not None:
+            cache_hits_total.inc()
             return cached
+
+        cache_misses_total.inc()
 
         data = await self.client.seats(event.id)
         seats = data.get("seats", [])
