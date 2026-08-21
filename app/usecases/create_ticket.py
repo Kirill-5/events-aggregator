@@ -16,7 +16,7 @@ class CreateTicketUsecase:
         event_repo: EventRepository,
         ticket_repo: TicketRepository,
         idempotency_repo: IdempotencyKeyRepository,
-        outbox_repo: OutboxRepository
+        outbox_repo: OutboxRepository,
     ):
         self.client = client
         self.event_repo = event_repo
@@ -31,7 +31,7 @@ class CreateTicketUsecase:
         last_name: str,
         email: str,
         seat: str,
-        idempotency_key: str = None
+        idempotency_key: str = None,
     ) -> str:
         event = await self.event_repo.get(event_id)
         if not event:
@@ -44,13 +44,16 @@ class CreateTicketUsecase:
         if idempotency_key:
             existing = await self.idempotency_repo.get_by_key(idempotency_key)
             if existing:
-                if (str(existing.event_id) == event_id and
-                    existing.seat == seat):
+                if str(existing.event_id) == event_id and existing.seat == seat:
                     return str(existing.ticket_id)
                 else:
-                    raise ConflictError("Idempotency key already used with different data")
+                    raise ConflictError(
+                        "Idempotency key already used with different data"
+                    )
 
-        result = await self.client.register(event_id, first_name, last_name, email, seat)
+        result = await self.client.register(
+            event_id, first_name, last_name, email, seat
+        )
 
         if isinstance(result, list):
             raise ValueError(result[0] if result else "Unknown provider error")
@@ -67,15 +70,12 @@ class CreateTicketUsecase:
             first_name=first_name,
             last_name=last_name,
             email=email,
-            seat=seat
+            seat=seat,
         )
 
         if idempotency_key:
             await self.idempotency_repo.save(
-                key=idempotency_key,
-                ticket_id=ticket_id,
-                event_id=event_id,
-                seat=seat
+                key=idempotency_key, ticket_id=ticket_id, event_id=event_id, seat=seat
             )
 
         await self.outbox_repo.create(
@@ -86,8 +86,8 @@ class CreateTicketUsecase:
                 "user_email": email,
                 "seat": seat,
                 "message": f"Ticket {ticket_id} purchased for event {event.name}",
-                "idempotency_key": idempotency_key or f"ticket_{ticket_id}"
-            }
+                "idempotency_key": idempotency_key or f"ticket_{ticket_id}",
+            },
         )
 
         return ticket_id

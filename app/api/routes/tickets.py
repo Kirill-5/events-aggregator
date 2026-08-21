@@ -22,7 +22,7 @@ router = APIRouter(tags=["tickets"])
 async def create_ticket(
     ticket: TicketCreate,
     db: AsyncSession = Depends(get_db),
-    client: EventsProviderClient = Depends(get_events_provider_client)
+    client: EventsProviderClient = Depends(get_events_provider_client),
 ):
     try:
         UUID(ticket.event_id)
@@ -39,7 +39,7 @@ async def create_ticket(
         event_repo=event_repo,
         ticket_repo=ticket_repo,
         idempotency_repo=idempotency_repo,
-        outbox_repo=outbox_repo
+        outbox_repo=outbox_repo,
     )
 
     try:
@@ -49,7 +49,7 @@ async def create_ticket(
             last_name=ticket.last_name,
             email=ticket.email,
             seat=ticket.seat,
-            idempotency_key=ticket.idempotency_key
+            idempotency_key=ticket.idempotency_key,
         )
         return {"ticket_id": ticket_id}
     except ValueError as e:

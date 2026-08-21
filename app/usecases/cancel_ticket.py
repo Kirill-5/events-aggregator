@@ -7,7 +7,12 @@ from app.services.events_provider_client import EventsProviderClient
 
 
 class CancelTicketUsecase:
-    def __init__(self, client: EventsProviderClient, ticket_repo: TicketRepository, outbox_repo: OutboxRepository):
+    def __init__(
+        self,
+        client: EventsProviderClient,
+        ticket_repo: TicketRepository,
+        outbox_repo: OutboxRepository,
+    ):
         self.client = client
         self.ticket_repo = ticket_repo
         self.outbox_repo = outbox_repo
@@ -24,5 +29,5 @@ class CancelTicketUsecase:
         await self.outbox_repo.create(
             event_type="ticket_cancelled",
             payload={"ticket_id": str(ticket_id), "event_id": str(event_id)},
-            status=OutboxStatus.SENT
+            status=OutboxStatus.SENT,
         )

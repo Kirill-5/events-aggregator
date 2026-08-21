@@ -20,8 +20,7 @@ router = APIRouter(tags=["sync"])
 async def trigger_sync(db: AsyncSession = Depends(get_db)):
     try:
         client = EventsProviderClient(
-            base_url=EVENTS_PROVIDER_URL,
-            api_key=EVENTS_PROVIDER_API_KEY
+            base_url=EVENTS_PROVIDER_URL, api_key=EVENTS_PROVIDER_API_KEY
         )
 
         event_repo = EventRepository(db)
@@ -37,9 +36,7 @@ async def trigger_sync(db: AsyncSession = Depends(get_db)):
 
         now = datetime.now().isoformat()
         await sync_metadata_repo.update_metadata(
-            last_sync_time=datetime.now(),
-            last_changed_at=now,
-            sync_status="success"
+            last_sync_time=datetime.now(), last_changed_at=now, sync_status="success"
         )
 
         return {"status": "success", "synced": count}

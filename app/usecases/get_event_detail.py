@@ -25,7 +25,9 @@ class GetEventDetailUsecase:
                 "city": place.city,
                 "address": place.address,
                 "seats_pattern": place.seats_pattern,
-            } if place else None,
+            }
+            if place
+            else None,
             "event_time": event.event_time,
             "registration_deadline": event.registration_deadline,
             "status": event.status,

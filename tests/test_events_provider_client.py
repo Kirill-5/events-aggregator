@@ -15,7 +15,7 @@ async def test_events():
         mock_get.assert_called_once_with(
             "http://test.com/api/events/",
             params={"cursor": "cursor1", "changed_at": "2000-01-01"},
-            headers={"x-api-key": "api_key"}
+            headers={"x-api-key": "api_key"},
         )
         assert result == {"results": [{"id": 1}], "next": None}
 
@@ -29,10 +29,7 @@ async def test_events_with_cursor():
         client = EventsProviderClient("http://test.com", "api_key")
         result = await client.events(cursor="cursor_url", changed_at="2000-01-01")
 
-        mock_get.assert_called_once_with(
-            "cursor_url",
-            headers={"x-api-key": "api_key"}
-        )
+        mock_get.assert_called_once_with("cursor_url", headers={"x-api-key": "api_key"})
         assert result == {"results": [{"id": 1}], "next": "next_url"}
 
 
@@ -49,7 +46,7 @@ async def test_cancel():
             method="DELETE",
             url="http://test.com/api/events/event123/unregister/",
             json={"ticket_id": "ticket456"},
-            headers={"x-api-key": "api_key", "Content-Type": "application/json"}
+            headers={"x-api-key": "api_key", "Content-Type": "application/json"},
         )
         assert result == {"success": True}
 
@@ -65,6 +62,6 @@ async def test_seats():
 
         mock_get.assert_called_once_with(
             "http://test.com/api/events/event123/seats/",
-            headers={"x-api-key": "api_key"}
+            headers={"x-api-key": "api_key"},
         )
         assert result == {"seats": ["A1", "A2"]}

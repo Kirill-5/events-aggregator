@@ -4,7 +4,11 @@ from fastapi import APIRouter, Depends, Response
 from prometheus_client import REGISTRY, generate_latest
 
 from app.api.dependencies import get_event_repository, get_outbox_repository
-from app.core.metrics import events_total, tickets_cancelled_total, tickets_created_total
+from app.core.metrics import (
+    events_total,
+    tickets_cancelled_total,
+    tickets_created_total,
+)
 from app.repositories.event_repository import EventRepository
 from app.repositories.outbox_repository import OutboxRepository
 

@@ -12,12 +12,14 @@ class OutboxRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, event_type: str, payload: dict, status: OutboxStatus = OutboxStatus.PENDING) -> Outbox:
+    async def create(
+        self,
+        event_type: str,
+        payload: dict,
+        status: OutboxStatus = OutboxStatus.PENDING,
+    ) -> Outbox:
         new_message = Outbox(
-            event_type=event_type,
-            payload=payload,
-            status=status,
-            attempts=0
+            event_type=event_type, payload=payload, status=status, attempts=0
         )
         self.session.add(new_message)
         await self.session.commit()
@@ -37,7 +39,11 @@ class OutboxRepository:
         return result.scalars().first()
 
     async def count_by_event_type(self, event_type: str) -> int:
-        query = select(func.count()).select_from(Outbox).filter(Outbox.event_type == event_type)
+        query = (
+            select(func.count())
+            .select_from(Outbox)
+            .filter(Outbox.event_type == event_type)
+        )
         result = await self.session.execute(query)
         return result.scalar_one()
 

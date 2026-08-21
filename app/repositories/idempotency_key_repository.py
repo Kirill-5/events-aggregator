@@ -16,12 +16,11 @@ class IdempotencyKeyRepository:
         result = await self.session.execute(query)
         return result.scalars().first()
 
-    async def save(self, key: str, ticket_id: UUID, event_id: UUID, seat: str) -> IdempotencyKey:
+    async def save(
+        self, key: str, ticket_id: UUID, event_id: UUID, seat: str
+    ) -> IdempotencyKey:
         new_key = IdempotencyKey(
-            key=key,
-            ticket_id=ticket_id,
-            event_id=event_id,
-            seat=seat
+            key=key, ticket_id=ticket_id, event_id=event_id, seat=seat
         )
         self.session.add(new_key)
         await self.session.commit()

@@ -12,7 +12,7 @@ from app.usecases.sync_events_usecase import SyncEventsUsecase
 
 def start_scheduler():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(sync_job, 'interval', days=1)
+    scheduler.add_job(sync_job, "interval", days=1)
     scheduler.start()
 
 
@@ -20,8 +20,7 @@ async def sync_job():
     async with SessionLocal() as db:
         try:
             client = EventsProviderClient(
-                base_url=EVENTS_PROVIDER_URL,
-                api_key=EVENTS_PROVIDER_API_KEY
+                base_url=EVENTS_PROVIDER_URL, api_key=EVENTS_PROVIDER_API_KEY
             )
             event_repo = EventRepository(db)
             place_repo = PlaceRepository(db)
@@ -39,7 +38,7 @@ async def sync_job():
             await sync_metadata_repo.update_metadata(
                 last_sync_time=datetime.now(),
                 last_changed_at=now,
-                sync_status="success"
+                sync_status="success",
             )
 
         except Exception as e:

@@ -15,7 +15,9 @@ class EventsPaginator:
             if self.page_count >= 15:
                 raise StopAsyncIteration
 
-            data = await self.client.events(cursor=self.cursor, changed_at=self.changed_at)
+            data = await self.client.events(
+                cursor=self.cursor, changed_at=self.changed_at
+            )
             self.current_page = data.get("results", [])
             self.cursor = data.get("next")
             self.page_index = 0

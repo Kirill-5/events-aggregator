@@ -5,7 +5,12 @@ from app.services.events_paginator import EventsPaginator
 
 
 class SyncEventsUsecase:
-    def __init__(self, client: EventsProviderClient, event_repo: EventRepository, place_repo: PlaceRepository):
+    def __init__(
+        self,
+        client: EventsProviderClient,
+        event_repo: EventRepository,
+        place_repo: PlaceRepository,
+    ):
         self.client = client
         self.event_repo = event_repo
         self.place_repo = place_repo
@@ -16,15 +21,17 @@ class SyncEventsUsecase:
         async for event_data in EventsPaginator(self.client, changed_at=changed_at):
             place = await self.place_repo.upsert(event_data["place"])
 
-            await self.event_repo.upsert({
-                "id": event_data["id"],
-                "name": event_data["name"],
-                "place_id": place.id,
-                "event_time": event_data["event_time"],
-                "registration_deadline": event_data.get("registration_deadline"),
-                "status": event_data["status"],
-                "number_of_visitors": event_data.get("number_of_visitors", 0)
-            })
+            await self.event_repo.upsert(
+                {
+                    "id": event_data["id"],
+                    "name": event_data["name"],
+                    "place_id": place.id,
+                    "event_time": event_data["event_time"],
+                    "registration_deadline": event_data.get("registration_deadline"),
+                    "status": event_data["status"],
+                    "number_of_visitors": event_data.get("number_of_visitors", 0),
+                }
+            )
             count += 1
 
         return count

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class TicketCreate(BaseModel):
     event_id: str
     first_name: str
@@ -8,6 +9,7 @@ class TicketCreate(BaseModel):
     email: str
     seat: str
     idempotency_key: Optional[str] = None
+
 
 class TicketResponse(BaseModel):
     ticket_id: str

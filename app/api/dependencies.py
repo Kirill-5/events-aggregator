@@ -13,8 +13,7 @@ from app.db.database import get_db
 
 async def get_events_provider_client() -> EventsProviderClient:
     return EventsProviderClient(
-        base_url=EVENTS_PROVIDER_URL,
-        api_key=EVENTS_PROVIDER_API_KEY
+        base_url=EVENTS_PROVIDER_URL, api_key=EVENTS_PROVIDER_API_KEY
     )
 
 

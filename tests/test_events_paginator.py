@@ -8,7 +8,7 @@ async def test_events_paginator_multiple_pages():
     mock_client = AsyncMock()
     mock_client.events.side_effect = [
         {"results": [{"id": 1}, {"id": 2}], "next": "cursor2"},
-        {"results": [{"id": 3}], "next": None}
+        {"results": [{"id": 3}], "next": None},
     ]
 
     paginator = EventsPaginator(mock_client)
@@ -27,7 +27,7 @@ async def test_events_paginator_empty_first_page():
     mock_client = AsyncMock()
     mock_client.events.side_effect = [
         {"results": [], "next": "cursor2"},
-        {"results": [{"id": 1}], "next": None}
+        {"results": [{"id": 1}], "next": None},
     ]
 
     paginator = EventsPaginator(mock_client)

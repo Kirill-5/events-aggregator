@@ -15,7 +15,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-SYNC_DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
+SYNC_DATABASE_URL = DATABASE_URL.replace(
+    "postgresql+asyncpg://", "postgresql+psycopg2://", 1
+)
 
 
 def run_migrations_offline() -> None:
@@ -33,10 +35,7 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     connectable = create_engine(SYNC_DATABASE_URL)
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
             context.run_migrations()
 

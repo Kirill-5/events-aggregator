@@ -15,14 +15,22 @@ class TicketRepository:
         result = await self.session.execute(query)
         return result.scalars().first()
 
-    async def create(self, event_id: str, ticket_id: str, first_name: str, last_name: str, email: str, seat: str) -> Registration:
+    async def create(
+        self,
+        event_id: str,
+        ticket_id: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+        seat: str,
+    ) -> Registration:
         registration = Registration(
             event_id=event_id,
             ticket_id=ticket_id,
             first_name=first_name,
             last_name=last_name,
             email=email,
-            seat=seat
+            seat=seat,
         )
         self.session.add(registration)
         await self.session.commit()

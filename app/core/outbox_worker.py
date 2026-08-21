@@ -7,9 +7,7 @@ from app.services.capashino_client import CapashinoClient
 
 
 async def outbox_worker(
-        capashino_client: CapashinoClient,
-        interval: int = 10,
-        max_attempts: int = 5
+    capashino_client: CapashinoClient, interval: int = 10, max_attempts: int = 5
 ) -> None:
     while True:
         try:
@@ -23,19 +21,24 @@ async def outbox_worker(
                         await capashino_client.send_notification(
                             message=payload["message"],
                             reference_id=payload["ticket_id"],
-                            idempotency_key=str(record_id)
+                            idempotency_key=str(record_id),
                         )
                         await outbox_repo.mark_as_sent(record_id)
                         await db.commit()
                         logging.info("Outbox record %s sent successfully", record_id)
                     except Exception as e:
-                        logging.error("Failed to send outbox record %s: %s", record_id, e)
+                        logging.error(
+                            "Failed to send outbox record %s: %s", record_id, e
+                        )
                         await db.rollback()
                         await outbox_repo.increment_attempts(record_id)
                         await db.commit()
                         updated = await outbox_repo.get_by_id(record_id)
                         if updated and updated.attempts >= max_attempts:
-                            logging.warning("Outbox record %s exceeded max attempts, marking as failed", record_id)
+                            logging.warning(
+                                "Outbox record %s exceeded max attempts, marking as failed",
+                                record_id,
+                            )
                             await outbox_repo.mark_as_failed(record_id)
                             await db.commit()
         except Exception as e:

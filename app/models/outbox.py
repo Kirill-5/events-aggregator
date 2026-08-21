@@ -14,11 +14,14 @@ class Outbox(Base):
     event_type = Column(String, nullable=False)
     payload = Column(JSON, nullable=False)
     status = Column(String, default="pending")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
-                        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
     attempts = Column(Integer, default=0)
 
-    __table_args__ = (
-        Index("idx_outbox_status_created", "status", "created_at"),
-    )
+    __table_args__ = (Index("idx_outbox_status_created", "status", "created_at"),)

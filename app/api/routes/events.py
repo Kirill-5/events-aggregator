@@ -19,26 +19,20 @@ async def get_events(
     date_from: Optional[str] = None,
     page: int = 1,
     page_size: int = 20,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     event_repo = EventRepository(db)
     usecase = GetEventsUsecase(event_repo)
 
     result = await usecase.do(
-        date_from=date_from,
-        page=page,
-        page_size=page_size,
-        base_url="/api/events"
+        date_from=date_from, page=page, page_size=page_size, base_url="/api/events"
     )
 
     return result
 
 
 @router.get("/api/events/{event_id}")
-async def get_event(
-    event_id: str,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_event(event_id: str, db: AsyncSession = Depends(get_db)):
     event_repo = EventRepository(db)
     place_repo = PlaceRepository(db)
     usecase = GetEventDetailUsecase(event_repo, place_repo)

@@ -18,21 +18,21 @@ class PlaceRepository:
 
     async def upsert(self, place_data: dict) -> Place:
         stmt = pg_insert(Place).values(
-            id=place_data['id'],
-            name=place_data['name'],
-            city=place_data['city'],
-            address=place_data['address'],
-            seats_pattern=place_data['seats_pattern']
+            id=place_data["id"],
+            name=place_data["name"],
+            city=place_data["city"],
+            address=place_data["address"],
+            seats_pattern=place_data["seats_pattern"],
         )
         stmt = stmt.on_conflict_do_update(
-            index_elements=['id'],
+            index_elements=["id"],
             set_={
-                'name': stmt.excluded.name,
-                'city': stmt.excluded.city,
-                'address': stmt.excluded.address,
-                'seats_pattern': stmt.excluded.seats_pattern,
-            }
+                "name": stmt.excluded.name,
+                "city": stmt.excluded.city,
+                "address": stmt.excluded.address,
+                "seats_pattern": stmt.excluded.seats_pattern,
+            },
         )
         await self.session.execute(stmt)
         await self.session.commit()
-        return await self.get(place_data['id'])
+        return await self.get(place_data["id"])

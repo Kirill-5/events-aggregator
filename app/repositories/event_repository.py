@@ -10,7 +10,6 @@ from app.models.event import Event
 
 
 class EventRepository:
-
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -26,7 +25,9 @@ class EventRepository:
         result = await self.session.execute(query)
         return result.scalars().first()
 
-    async def list(self, date_from: Optional[str] = None, skip: int = 0, limit: int = 20) -> List[Event]:
+    async def list(
+        self, date_from: Optional[str] = None, skip: int = 0, limit: int = 20
+    ) -> List[Event]:
         query = select(Event).options(joinedload(Event.place))
         if date_from:
             query = query.where(Event.event_time >= datetime.fromisoformat(date_from))
@@ -35,32 +36,34 @@ class EventRepository:
         return result.scalars().all()
 
     async def upsert(self, event_data: dict) -> Event:
-        event_time = self._parse_datetime(event_data.get('event_time'))
-        registration_deadline = self._parse_datetime(event_data.get('registration_deadline'))
+        event_time = self._parse_datetime(event_data.get("event_time"))
+        registration_deadline = self._parse_datetime(
+            event_data.get("registration_deadline")
+        )
 
         stmt = pg_insert(Event).values(
-            id=event_data['id'],
-            name=event_data['name'],
-            place_id=event_data['place_id'],
+            id=event_data["id"],
+            name=event_data["name"],
+            place_id=event_data["place_id"],
             event_time=event_time,
             registration_deadline=registration_deadline,
-            status=event_data['status'],
-            number_of_visitors=event_data.get('number_of_visitors', 0),
+            status=event_data["status"],
+            number_of_visitors=event_data.get("number_of_visitors", 0),
         )
         stmt = stmt.on_conflict_do_update(
-            index_elements=['id'],
+            index_elements=["id"],
             set_={
-                'name': stmt.excluded.name,
-                'place_id': stmt.excluded.place_id,
-                'event_time': stmt.excluded.event_time,
-                'registration_deadline': stmt.excluded.registration_deadline,
-                'status': stmt.excluded.status,
-                'number_of_visitors': stmt.excluded.number_of_visitors,
-            }
+                "name": stmt.excluded.name,
+                "place_id": stmt.excluded.place_id,
+                "event_time": stmt.excluded.event_time,
+                "registration_deadline": stmt.excluded.registration_deadline,
+                "status": stmt.excluded.status,
+                "number_of_visitors": stmt.excluded.number_of_visitors,
+            },
         )
         await self.session.execute(stmt)
         await self.session.commit()
-        return await self.get(event_data['id'])
+        return await self.get(event_data["id"])
 
     @staticmethod
     def _parse_datetime(value):
