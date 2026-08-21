@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.events_provider_client import EventsProviderClient
 from app.core.config import EVENTS_PROVIDER_URL, EVENTS_PROVIDER_API_KEY
+from app.repositories.outbox_repository import OutboxRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.repositories.event_repository import EventRepository
 from app.usecases.cancel_ticket import CancelTicketUsecase
@@ -22,7 +23,8 @@ def get_cancel_ticket_usecase(
     client: EventsProviderClient = Depends(get_events_provider_client),
 ) -> CancelTicketUsecase:
     ticket_repo = TicketRepository(db)
-    return CancelTicketUsecase(client, ticket_repo)
+    outbox_repo = OutboxRepository(db)
+    return CancelTicketUsecase(client, ticket_repo, outbox_repo)
 
 
 def get_seats_usecase(
